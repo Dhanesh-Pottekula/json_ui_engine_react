@@ -1,4 +1,6 @@
-export default function Button({ label, onClick, variant = "primary", disabled }) {
+import { cn } from "../../utils/cn.js";
+
+export default function Button({ label, onClick, variant = "primary", disabled, className }) {
   const variantClassName =
     variant === "secondary"
       ? "border border-slate-200 bg-white/90 text-slate-800 hover:-translate-y-0.5"
@@ -6,7 +8,11 @@ export default function Button({ label, onClick, variant = "primary", disabled }
 
   return (
     <button
-      className={`rounded-2xl px-4 py-3 font-semibold tracking-[-0.01em] transition disabled:cursor-wait disabled:opacity-55 ${variantClassName}`}
+      className={cn(
+        "rounded-2xl px-4 py-3 font-semibold tracking-[-0.01em] transition disabled:cursor-wait disabled:opacity-55",
+        variantClassName,
+        className
+      )}
       type="button"
       onClick={onClick}
       disabled={disabled}

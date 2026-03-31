@@ -1,5 +1,15 @@
-export default function Text({ as = "p", content, tone, align, children }) {
+import { cn } from "../../utils/cn.js";
+
+export default function Text({ as = "p", content, tone, align, className, children }) {
   const Component = as;
+  const alignClassName =
+    align === "center"
+      ? "text-center"
+      : align === "right"
+        ? "text-right"
+        : align === "justify"
+          ? "text-justify"
+          : "text-left";
   const toneClassName =
     tone === "eyebrow"
       ? "inline-flex w-fit rounded-full bg-white/15 px-3 py-1.5 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-inherit"
@@ -18,7 +28,7 @@ export default function Text({ as = "p", content, tone, align, children }) {
                   : "";
 
   return (
-    <Component className={toneClassName} style={{ textAlign: align }}>
+    <Component className={cn("m-0", alignClassName, toneClassName, className)}>
       {content}
       {children}
     </Component>

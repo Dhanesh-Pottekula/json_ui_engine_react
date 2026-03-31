@@ -70,7 +70,7 @@
     "t": "C",
     "p": {
       "vr": "page",
-      "gp": "24px"
+      "className": "gap-6"
     },
     "c": [
       {
@@ -108,7 +108,7 @@
         "t": "C",
         "p": {
           "vr": "split",
-          "gp": "20px"
+          "className": "gap-5"
         },
         "c": [
           {
@@ -190,7 +190,7 @@
                 "t": "C",
                 "p": {
                   "vr": "actions",
-                  "gp": "12px"
+                  "className": "gap-3"
                 },
                 "c": [
                   {
@@ -295,12 +295,14 @@
                 {
                   "k": "principalPaid",
                   "l": "Principal",
-                  "c": "#0f766e"
+                  "className": "fill-teal-700",
+                  "swatchClassName": "bg-teal-700"
                 },
                 {
                   "k": "interestPaid",
                   "l": "Interest",
-                  "c": "#f97316"
+                  "className": "fill-orange-500",
+                  "swatchClassName": "bg-orange-500"
                 }
               ]
             }

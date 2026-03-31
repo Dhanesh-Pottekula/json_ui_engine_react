@@ -1,3 +1,5 @@
+import { cn } from "../../utils/cn.js";
+
 function sampleData(data = [], maxBars = 12) {
   if (!Array.isArray(data) || data.length <= maxBars) {
     return data;
@@ -13,11 +15,18 @@ export default function BarChart({
   bars = [],
   labelKey = "label",
   maxBars = 12,
+  className,
+  legendClassName,
+  legendItemClassName,
+  swatchClassName,
+  svgClassName,
+  axisClassName,
+  emptyClassName,
 }) {
   const rows = sampleData(data, maxBars);
 
   if (!rows.length || !bars.length) {
-    return <div className="flex flex-col gap-3.5 text-slate-500">No chart data available.</div>;
+    return <div className={cn("flex flex-col gap-3.5 text-slate-500", emptyClassName)}>No chart data available.</div>;
   }
 
   const width = 760;
@@ -33,13 +42,12 @@ export default function BarChart({
   );
 
   return (
-    <div className="flex flex-col gap-3.5">
-      <div className="flex flex-wrap gap-3">
+    <div className={cn("flex flex-col gap-3.5", className)}>
+      <div className={cn("flex flex-wrap gap-3", legendClassName)}>
         {bars.map((bar) => (
-          <span className="inline-flex items-center gap-2 text-sm text-slate-500" key={bar.key}>
+          <span className={cn("inline-flex items-center gap-2 text-sm text-slate-500", legendItemClassName)} key={bar.key}>
             <span
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: bar.color }}
+              className={cn("h-2.5 w-2.5 rounded-full", bar.swatchClassName, swatchClassName)}
             />
             {bar.label}
           </span>
@@ -47,7 +55,7 @@ export default function BarChart({
       </div>
 
       <svg
-        className="h-auto w-full overflow-visible"
+        className={cn("h-auto w-full overflow-visible", svgClassName)}
         viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label="Bar chart"
@@ -80,8 +88,8 @@ export default function BarChart({
                     width={barWidth}
                     height={barHeight}
                     rx="8"
-                    fill={bar.color}
                     opacity="0.92"
+                    className={bar.className}
                   />
                 );
               })}
@@ -90,7 +98,7 @@ export default function BarChart({
                 x={baseX + ((barWidth + 6) * bars.length - 6) / 2}
                 y={height - 16}
                 textAnchor="middle"
-                className="fill-slate-500 text-[11px]"
+                className={cn("fill-slate-500 text-[11px]", axisClassName)}
               >
                 Y{row[labelKey]}
               </text>

@@ -1,3 +1,5 @@
+import { cn } from "../../utils/cn.js";
+
 function normalizeOptions(options = []) {
   return options.map((option) =>
     typeof option === "object" && option !== null
@@ -9,14 +11,29 @@ function normalizeOptions(options = []) {
   );
 }
 
-export default function Select({ label, value, onChange, options, hint, error }) {
+export default function Select({
+  label,
+  value,
+  onChange,
+  options,
+  hint,
+  error,
+  className,
+  labelClassName,
+  selectClassName,
+  hintClassName,
+  errorClassName,
+}) {
   const normalizedOptions = normalizeOptions(options);
 
   return (
-    <label className="flex flex-col gap-2.5">
-      <span className="font-semibold tracking-[-0.01em] text-slate-800">{label}</span>
+    <label className={cn("flex flex-col gap-2.5", className)}>
+      <span className={cn("font-semibold tracking-[-0.01em] text-slate-800", labelClassName)}>{label}</span>
       <select
-        className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3.5 text-slate-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-100"
+        className={cn(
+          "w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3.5 text-slate-900 outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-100",
+          selectClassName
+        )}
         value={value}
         onChange={(event) => {
           const selected = normalizedOptions.find((option) => String(option.value) === event.target.value);
@@ -29,8 +46,8 @@ export default function Select({ label, value, onChange, options, hint, error })
           </option>
         ))}
       </select>
-      {hint ? <span className="text-sm text-slate-500">{hint}</span> : null}
-      {error ? <span className="text-sm font-semibold text-red-700">{error}</span> : null}
+      {hint ? <span className={cn("text-sm text-slate-500", hintClassName)}>{hint}</span> : null}
+      {error ? <span className={cn("text-sm font-semibold text-red-700", errorClassName)}>{error}</span> : null}
     </label>
   );
 }
