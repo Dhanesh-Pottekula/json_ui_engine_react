@@ -3,6 +3,7 @@ import { computeDerived } from "../derived/computeDerived.js";
 import { executeActionFlow } from "../actions/actionExecutor.js";
 import { defaultActionRegistry } from "../actions/registry.js";
 import { getIn, setIn } from "../state/store.js";
+import { normalizeSchema } from "../schema/normalizeSchema.js";
 import useEngineState from "../state/useEngineState.js";
 import { validateSchema } from "../validation/schemaValidator.js";
 import { defaultComponentRegistry } from "./registry.js";
@@ -27,15 +28,16 @@ export default function JsonRenderer({
   actionRegistry = defaultActionRegistry,
   onNavigate,
 }) {
-  const engine = useEngineState(schema);
+  const normalizedSchema = useMemo(() => normalizeSchema(schema), [schema]);
+  const engine = useEngineState(normalizedSchema);
 
   const validation = useMemo(
     () =>
-      validateSchema(schema, {
+      validateSchema(normalizedSchema, {
         components: Object.keys(componentRegistry),
         actions: Object.keys(actionRegistry),
       }),
-    [actionRegistry, componentRegistry, schema]
+    [actionRegistry, componentRegistry, normalizedSchema]
   );
 
   if (!validation.valid) {
@@ -52,7 +54,7 @@ export default function JsonRenderer({
       },
       setValue(path, value) {
         context.state = setIn(context.state, path, value);
-        context.derived = computeDerived(schema.derived, context.state, {
+        context.derived = computeDerived(normalizedSchema.derived, context.state, {
           runtime: context.runtime,
         });
         engine.setValue(path, value);
@@ -61,7 +63,7 @@ export default function JsonRenderer({
         Object.entries(values || {}).forEach(([path, value]) => {
           context.state = setIn(context.state, path, value);
         });
-        context.derived = computeDerived(schema.derived, context.state, {
+        context.derived = computeDerived(normalizedSchema.derived, context.state, {
           runtime: context.runtime,
         });
         engine.setValues(values);
@@ -130,7 +132,7 @@ export default function JsonRenderer({
     try {
       return await executeActionFlow({
         actionName,
-        actions: schema.actions,
+        actions: normalizedSchema.actions,
         registry: actionRegistry,
         context,
         extras,
@@ -147,7 +149,7 @@ export default function JsonRenderer({
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.18),transparent_28%),radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_24%),linear-gradient(180deg,#fbf7f0_0%,#f4efe5_100%)] px-4 py-7 text-slate-800 sm:px-5 sm:py-10 lg:px-6 lg:py-14">
       <div className="mx-auto max-w-6xl font-['Avenir_Next','Segoe_UI',sans-serif]">
-      {schema.ui ? renderNode(schema.ui, {
+      {normalizedSchema.ui ? renderNode(normalizedSchema.ui, {
         state: engine.state,
         derived: engine.derived,
         runtime: engine.runtime,

@@ -1,270 +1,213 @@
 {
-  "state": {
+  "s": {
     "principal": 250000,
     "rate": 7.1,
     "years": 20,
     "fees": 1200
   },
-  "derived": {
+  "d": {
     "monthlyPayment": "payment(principal, rate, years)",
     "totalRepayment": "monthlyPayment * years * 12 + fees",
     "totalInterest": "totalRepayment - principal - fees",
     "interestShare": "(totalInterest / max(totalRepayment, 1)) * 100",
     "yearlyBreakdown": "amortization(principal, rate, years)"
   },
-  "actions": {
+  "a": {
     "resetScenario": [
-      {
-        "type": "set",
-        "values": {
+      [
+        "s",
+        {
           "principal": 250000,
           "rate": 7.1,
           "years": 20,
           "fees": 1200
         }
-      },
-      {
-        "type": "validate",
-        "rules": [
-          {
-            "field": "principal",
-            "test": "principal > 0",
-            "message": "Principal must be greater than zero."
-          },
-          {
-            "field": "rate",
-            "test": "rate > 0",
-            "message": "Rate must be greater than zero."
-          },
-          {
-            "field": "years",
-            "test": "years >= 1",
-            "message": "Term must be at least one year."
-          },
-          {
-            "field": "fees",
-            "test": "fees >= 0",
-            "message": "Fees cannot be negative."
-          }
-        ]
-      }
+      ]
     ],
     "requestQuote": [
-      {
-        "type": "validate",
-        "rules": [
-          {
-            "field": "principal",
-            "test": "principal >= 1000",
-            "message": "Principal must be at least $1,000."
-          },
-          {
-            "field": "rate",
-            "test": "rate > 0 && rate <= 20",
-            "message": "Rate must stay between 0 and 20."
-          },
-          {
-            "field": "years",
-            "test": "years >= 1 && years <= 30",
-            "message": "Term must stay between 1 and 30 years."
-          },
-          {
-            "field": "fees",
-            "test": "fees >= 0",
-            "message": "Fees cannot be negative."
-          }
+      [
+        "v",
+        [
+          [
+            "principal",
+            "principal >= 1000",
+            "Principal must be at least $1,000."
+          ],
+          [
+            "rate",
+            "rate > 0 && rate <= 20",
+            "Rate must stay between 0 and 20."
+          ],
+          [
+            "years",
+            "years >= 1 && years <= 30",
+            "Term must stay between 1 and 30 years."
+          ],
+          [
+            "fees",
+            "fees >= 0",
+            "Fees cannot be negative."
+          ]
         ]
-      },
-      {
-        "type": "log",
-        "payload": {
-          "principal": {
-            "expr": "principal"
-          },
-          "rate": {
-            "expr": "rate"
-          },
-          "years": {
-            "expr": "years"
-          },
-          "monthlyPayment": {
-            "expr": "monthlyPayment"
-          },
-          "totalInterest": {
-            "expr": "totalInterest"
-          }
+      ],
+      [
+        "l",
+        {
+          "principal": "=principal",
+          "rate": "=rate",
+          "years": "=years",
+          "monthlyPayment": "=monthlyPayment",
+          "totalInterest": "=totalInterest"
         }
-      },
-      {
-        "type": "alert",
-        "message": "Projected payment: {{formatCurrency(monthlyPayment)}} each month."
-      }
+      ],
+      [
+        "a",
+        "Projected payment: {{formatCurrency(monthlyPayment)}} each month."
+      ]
     ]
   },
-  "ui": {
-    "type": "Container",
-    "props": {
-      "variant": "page",
-      "gap": "24px"
+  "u": {
+    "t": "C",
+    "p": {
+      "vr": "page",
+      "gp": "24px"
     },
-    "children": [
+    "c": [
       {
-        "type": "Card",
-        "props": {
-          "tone": "hero"
+        "t": "K",
+        "p": {
+          "tn": "hero"
         },
-        "children": [
+        "c": [
           {
-            "type": "Text",
-            "props": {
-              "as": "span",
-              "tone": "eyebrow",
-              "content": "Controlled React Runtime"
+            "t": "T",
+            "p": {
+              "a": "span",
+              "tn": "eyebrow",
+              "ct": "Controlled React Runtime"
             }
           },
           {
-            "type": "Text",
-            "props": {
-              "as": "h1",
-              "tone": "display",
-              "content": "Loan Studio"
+            "t": "T",
+            "p": {
+              "a": "h1",
+              "tn": "display",
+              "ct": "Loan Studio"
             }
           },
           {
-            "type": "Text",
-            "props": {
-              "tone": "lead",
-              "content": "A schema-driven lending UI with declarative state, derived formulas, guarded actions, and a component registry."
+            "t": "T",
+            "p": {
+              "tn": "lead",
+              "ct": "A schema-driven lending UI with formulas, actions, and a component registry."
             }
           }
         ]
       },
       {
-        "type": "Container",
-        "props": {
-          "variant": "split",
-          "gap": "20px"
+        "t": "C",
+        "p": {
+          "vr": "split",
+          "gp": "20px"
         },
-        "children": [
+        "c": [
           {
-            "type": "Card",
-            "props": {
-              "title": "Scenario inputs",
-              "subtitle": "Bindings write into state while validation and actions stay declarative."
+            "t": "K",
+            "p": {
+              "tt": "Scenario inputs",
+              "sb": "Bindings update state. Actions stay declarative."
             },
-            "children": [
+            "c": [
               {
-                "type": "NumberInput",
-                "props": {
-                  "label": "Principal",
-                  "prefix": "$",
-                  "value": {
-                    "bind": "principal"
-                  },
-                  "min": 1000,
-                  "step": 1000,
-                  "hint": "Set the original loan amount.",
-                  "error": {
-                    "expr": "runtime.errors.principal"
-                  }
+                "t": "N",
+                "p": {
+                  "lb": "Principal",
+                  "pf": "$",
+                  "v": "@principal",
+                  "mn": 1000,
+                  "st": 1000,
+                  "hi": "Original loan amount.",
+                  "er": "=runtime.errors.principal"
                 }
               },
               {
-                "type": "Slider",
-                "props": {
-                  "label": "Interest rate",
-                  "suffix": "%",
-                  "value": {
-                    "bind": "rate"
-                  },
-                  "min": 0.5,
-                  "max": 15,
-                  "step": 0.1,
-                  "hint": "Adjust the annual interest rate.",
-                  "error": {
-                    "expr": "runtime.errors.rate"
-                  }
+                "t": "R",
+                "p": {
+                  "lb": "Interest rate",
+                  "sf": "%",
+                  "v": "@rate",
+                  "mn": 0.5,
+                  "mx": 15,
+                  "st": 0.1,
+                  "hi": "Annual rate.",
+                  "er": "=runtime.errors.rate"
                 }
               },
               {
-                "type": "Select",
-                "props": {
-                  "label": "Term",
-                  "value": {
-                    "bind": "years"
-                  },
-                  "options": [
+                "t": "S",
+                "p": {
+                  "lb": "Term",
+                  "v": "@years",
+                  "op": [
                     {
-                      "label": "10 years",
-                      "value": 10
+                      "l": "10 years",
+                      "v": 10
                     },
                     {
-                      "label": "15 years",
-                      "value": 15
+                      "l": "15 years",
+                      "v": 15
                     },
                     {
-                      "label": "20 years",
-                      "value": 20
+                      "l": "20 years",
+                      "v": 20
                     },
                     {
-                      "label": "25 years",
-                      "value": 25
+                      "l": "25 years",
+                      "v": 25
                     },
                     {
-                      "label": "30 years",
-                      "value": 30
+                      "l": "30 years",
+                      "v": 30
                     }
                   ],
-                  "hint": "Select the repayment term.",
-                  "error": {
-                    "expr": "runtime.errors.years"
-                  }
+                  "hi": "Repayment term.",
+                  "er": "=runtime.errors.years"
                 }
               },
               {
-                "type": "NumberInput",
-                "props": {
-                  "label": "Closing fees",
-                  "prefix": "$",
-                  "value": {
-                    "bind": "fees"
-                  },
-                  "min": 0,
-                  "step": 100,
-                  "hint": "One-time costs included in the scenario.",
-                  "error": {
-                    "expr": "runtime.errors.fees"
-                  }
+                "t": "N",
+                "p": {
+                  "lb": "Closing fees",
+                  "pf": "$",
+                  "v": "@fees",
+                  "mn": 0,
+                  "st": 100,
+                  "hi": "One-time costs.",
+                  "er": "=runtime.errors.fees"
                 }
               },
               {
-                "type": "Container",
-                "props": {
-                  "variant": "actions",
-                  "gap": "12px"
+                "t": "C",
+                "p": {
+                  "vr": "actions",
+                  "gp": "12px"
                 },
-                "children": [
+                "c": [
                   {
-                    "type": "Button",
-                    "props": {
-                      "label": "Request quote",
-                      "variant": "primary",
-                      "onClick": {
-                        "action": "requestQuote"
-                      },
-                      "disabled": {
-                        "expr": "runtime.busyActions.requestQuote === true"
-                      }
+                    "t": "B",
+                    "p": {
+                      "lb": "Request quote",
+                      "vr": "primary",
+                      "oc": "#requestQuote",
+                      "ds": "=runtime.busyActions.requestQuote === true"
                     }
                   },
                   {
-                    "type": "Button",
-                    "props": {
-                      "label": "Reset scenario",
-                      "variant": "secondary",
-                      "onClick": {
-                        "action": "resetScenario"
-                      }
+                    "t": "B",
+                    "p": {
+                      "lb": "Reset scenario",
+                      "vr": "secondary",
+                      "oc": "#resetScenario"
                     }
                   }
                 ]
@@ -272,63 +215,63 @@
             ]
           },
           {
-            "type": "Card",
-            "props": {
-              "title": "Derived summary",
-              "subtitle": "Values below are recalculated from state on every change."
+            "t": "K",
+            "p": {
+              "tt": "Derived summary",
+              "sb": "These values recalculate on every state change."
             },
-            "children": [
+            "c": [
               {
-                "type": "Text",
-                "props": {
-                  "tone": "metric",
-                  "content": "{{formatCurrency(monthlyPayment)}}"
+                "t": "T",
+                "p": {
+                  "tn": "metric",
+                  "ct": "{{formatCurrency(monthlyPayment)}}"
                 }
               },
               {
-                "type": "Text",
-                "props": {
-                  "tone": "caption",
-                  "content": "Estimated monthly payment"
+                "t": "T",
+                "p": {
+                  "tn": "caption",
+                  "ct": "Estimated monthly payment"
                 }
               },
               {
-                "type": "StatGrid",
-                "props": {
-                  "items": [
+                "t": "G",
+                "p": {
+                  "it": [
                     {
-                      "label": "Total repayment",
-                      "value": "{{formatCurrency(totalRepayment)}}"
+                      "l": "Total repayment",
+                      "v": "{{formatCurrency(totalRepayment)}}"
                     },
                     {
-                      "label": "Interest + fees",
-                      "value": "{{formatCurrency(totalInterest + fees)}}"
+                      "l": "Interest + fees",
+                      "v": "{{formatCurrency(totalInterest + fees)}}"
                     },
                     {
-                      "label": "Interest share",
-                      "value": "{{round(interestShare, 1)}}%"
+                      "l": "Interest share",
+                      "v": "{{round(interestShare, 1)}}%"
                     },
                     {
-                      "label": "Term length",
-                      "value": "{{years}} years"
+                      "l": "Term length",
+                      "v": "{{years}} years"
                     }
                   ]
                 }
               },
               {
-                "type": "Text",
-                "visibleWhen": "monthlyPayment > 2200",
-                "props": {
-                  "tone": "note",
-                  "content": "This configuration pushes the monthly payment above the internal affordability threshold."
+                "t": "T",
+                "if": "monthlyPayment > 2200",
+                "p": {
+                  "tn": "note",
+                  "ct": "This setup pushes the monthly payment above the target threshold."
                 }
               },
               {
-                "type": "Text",
-                "visibleWhen": "runtime.lastAction === 'requestQuote' && !hasErrors(runtime.errors)",
-                "props": {
-                  "tone": "success",
-                  "content": "Validation passed. The runtime accepted the quote request flow."
+                "t": "T",
+                "if": "runtime.lastAction === 'requestQuote' && !hasErrors(runtime.errors)",
+                "p": {
+                  "tn": "success",
+                  "ct": "Validation passed and the quote flow completed."
                 }
               }
             ]
@@ -336,30 +279,28 @@
         ]
       },
       {
-        "type": "Card",
-        "props": {
-          "title": "Yearly payoff profile",
-          "subtitle": "A complex component can stay in the registry while JSON only names the component and its bindings."
+        "t": "K",
+        "p": {
+          "tt": "Yearly payoff profile",
+          "sb": "The chart is just another registered component referenced by schema."
         },
-        "children": [
+        "c": [
           {
-            "type": "BarChart",
-            "props": {
-              "data": {
-                "expr": "yearlyBreakdown"
-              },
-              "labelKey": "year",
-              "maxBars": 12,
-              "bars": [
+            "t": "H",
+            "p": {
+              "d": "=yearlyBreakdown",
+              "lk": "year",
+              "mb": 12,
+              "br": [
                 {
-                  "key": "principalPaid",
-                  "label": "Principal",
-                  "color": "#0f766e"
+                  "k": "principalPaid",
+                  "l": "Principal",
+                  "c": "#0f766e"
                 },
                 {
-                  "key": "interestPaid",
-                  "label": "Interest",
-                  "color": "#f97316"
+                  "k": "interestPaid",
+                  "l": "Interest",
+                  "c": "#f97316"
                 }
               ]
             }
