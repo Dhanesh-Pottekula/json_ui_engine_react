@@ -1,644 +1,715 @@
 {
-"state": {
-"investment": {
-"principal": 100000,
-"annualRate": 8,
-"years": 5,
-"compoundFrequency": 4
-}
-},
-"derived": {
-"rateDecimal": {
-"expr": "investment.annualRate / 100"
-},
-"simpleInterest": {
-"expr": "investment.principal * rateDecimal * investment.years"
-},
-"simpleTotal": {
-"expr": "investment.principal + simpleInterest"
-},
-"compoundTotal": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * investment.years)"
-},
-"compoundInterest": {
-"expr": "compoundTotal - investment.principal"
-},
-"difference": {
-"expr": "compoundTotal - simpleTotal"
-},
-"effectiveYearlyGain": {
-"expr": "compoundInterest / investment.years"
-}
-},
-"actions": {
-"resetCalculator": [
-{
-"type": "set",
-"values": {
-"investment.principal": 100000,
-"investment.annualRate": 8,
-"investment.years": 5,
-"investment.compoundFrequency": 4
-},
-"clearErrors": true
-}
-],
-"validateInputs": [
-{
-"type": "validate",
-"rules": [
-{
-"field": "investment.principal",
-"required": true,
-"message": "Principal is required"
-},
-{
-"field": "investment.principal",
-"test": "value > 0",
-"message": "Principal must be greater than 0"
-},
-{
-"field": "investment.annualRate",
-"required": true,
-"message": "Interest rate is required"
-},
-{
-"field": "investment.annualRate",
-"test": "value >= 0",
-"message": "Interest rate cannot be negative"
-},
-{
-"field": "investment.years",
-"required": true,
-"message": "Time period is required"
-},
-{
-"field": "investment.years",
-"test": "value > 0",
-"message": "Years must be greater than 0"
-},
-{
-"field": "investment.compoundFrequency",
-"required": true,
-"message": "Compounding frequency is required"
-},
-{
-"field": "investment.compoundFrequency",
-"test": "value > 0",
-"message": "Compounding frequency must be greater than 0"
-}
-]
-}
-],
-"showSummary": [
-{
-"type": "run",
-"action": "validateInputs"
-},
-{
-"type": "condition",
-"test": "!hasErrors(runtime.errors)",
-"then": [
-{
-"type": "alert",
-"message": "Simple total: {{formatCurrency(derived.simpleTotal)}} | Compound total: {{formatCurrency(derived.compoundTotal)}}"
-}
-]
-}
-]
-},
-"ui": {
-"type": "Container",
-"props": {
-"variant": "page",
-"className": "min-h-screen bg-slate-950 text-white"
-},
-"children": [
-{
-"type": "Container",
-"props": {
-"className": "mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
-},
-"children": [
-{
-"type": "Container",
-"props": {
-"className": "rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/60 p-6 shadow-2xl sm:p-8 lg:p-10"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "eyebrow",
-"content": "Interest growth visualizer",
-"className": "text-emerald-300 tracking-[0.2em] uppercase"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "display",
-"content": "Simple and compound interest real time tracker",
-"className": "mt-3 max-w-4xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "lead",
-"content": "Adjust principal, rate, time, and compounding frequency to instantly compare flat growth against compounding returns.",
-"className": "mt-4 max-w-2xl text-base text-slate-300 sm:text-lg"
-}
-},
-{
-"type": "Container",
-"props": {
-"variant": "actions",
-"className": "mt-6 flex flex-col gap-3 sm:flex-row"
-},
-"children": [
-{
-"type": "Button",
-"props": {
-"label": "Reset values",
-"variant": "secondary",
-"onClick": {
-"action": "resetCalculator"
-},
-"className": "rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white hover:bg-white/10"
-}
-},
-{
-"type": "Button",
-"props": {
-"label": "Quick summary",
-"variant": "primary",
-"onClick": {
-"action": "showSummary"
-},
-"className": "rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-emerald-400"
-}
-}
-]
-}
-]
-},
-{
-"type": "Container",
-"props": {
-"className": "mt-8 grid grid-cols-1 gap-6 lg:grid-cols-5"
-},
-"children": [
-{
-"type": "Card",
-"props": {
-"title": "Investment inputs",
-"subtitle": "Change any field and the output updates instantly.",
-"className": "lg:col-span-2 rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl backdrop-blur sm:p-6"
-},
-"children": [
-{
-"type": "Container",
-"props": {
-"className": "grid grid-cols-1 gap-5"
-},
-"children": [
-{
-"type": "NumberInput",
-"props": {
-"label": "Principal amount",
-"value": {
-"bind": "investment.principal"
-},
-"min": 0,
-"step": 1000,
-"prefix": "₹",
-"hint": "Initial amount you are investing or lending",
-"error": "{{runtime.errors.investment.principal}}",
-"className": "w-full rounded-2xl border border-white/10 bg-slate-950/80"
-}
-},
-{
-"type": "Slider",
-"props": {
-"label": "Annual interest rate",
-"value": {
-"bind": "investment.annualRate"
-},
-"min": 0,
-"max": 30,
-"step": 0.1,
-"suffix": "%",
-"hint": "Move the slider for quick rate changes",
-"error": "{{runtime.errors.investment.annualRate}}",
-"className": "w-full rounded-2xl border border-white/10 bg-slate-950/80"
-}
-},
-{
-"type": "Slider",
-"props": {
-"label": "Time period",
-"value": {
-"bind": "investment.years"
-},
-"min": 1,
-"max": 30,
-"step": 1,
-"suffix": " years",
-"hint": "Longer periods amplify compounding",
-"error": "{{runtime.errors.investment.years}}",
-"className": "w-full rounded-2xl border border-white/10 bg-slate-950/80"
-}
-},
-{
-"type": "Select",
-"props": {
-"label": "Compounding frequency",
-"value": {
-"bind": "investment.compoundFrequency"
-},
-"options": [
-{
-"label": "Yearly",
-"value": 1
-},
-{
-"label": "Half-yearly",
-"value": 2
-},
-{
-"label": "Quarterly",
-"value": 4
-},
-{
-"label": "Monthly",
-"value": 12
-},
-{
-"label": "Daily",
-"value": 365
-}
-],
-"hint": "How often the interest is added back to the base amount",
-"error": "{{runtime.errors.investment.compoundFrequency}}",
-"className": "w-full rounded-2xl border border-white/10 bg-slate-950/80"
-}
-}
-]
-}
-]
-},
-{
-"type": "Card",
-"props": {
-"tone": "hero",
-"title": "Live comparison",
-"subtitle": "See how flat interest and compounding diverge over time.",
-"className": "lg:col-span-3 rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/10 via-slate-900/90 to-slate-900 p-5 shadow-2xl sm:p-6"
-},
-"children": [
-{
-"type": "StatGrid",
-"props": {
-"className": "mt-2",
-"items": [
-{
-"label": "Simple interest earned",
-"value": "{{formatCurrency(derived.simpleInterest)}}"
-},
-{
-"label": "Simple maturity value",
-"value": "{{formatCurrency(derived.simpleTotal)}}"
-},
-{
-"label": "Compound interest earned",
-"value": "{{formatCurrency(derived.compoundInterest)}}"
-},
-{
-"label": "Compound maturity value",
-"value": "{{formatCurrency(derived.compoundTotal)}}"
-},
-{
-"label": "Extra earned from compounding",
-"value": "{{formatCurrency(derived.difference)}}"
-},
-{
-"label": "Average compound gain per year",
-"value": "{{formatCurrency(derived.effectiveYearlyGain)}}"
-}
-]
-}
-},
-{
-"type": "Container",
-"props": {
-"className": "mt-6 grid grid-cols-1 gap-4 md:grid-cols-2"
-},
-"children": [
-{
-"type": "Card",
-"props": {
-"className": "rounded-2xl border border-white/10 bg-slate-950/70 p-5"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "caption",
-"content": "Selected input snapshot",
-"className": "text-slate-400"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "metric",
-"content": "{{formatCurrency(investment.principal)}}",
-"className": "mt-2 text-3xl font-semibold text-white"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "note",
-"content": "At {{investment.annualRate}}% for {{investment.years}} years with {{investment.compoundFrequency}} compounding cycles per year",
-"className": "mt-2 text-sm text-slate-300"
-}
-}
-]
-},
-{
-"type": "Card",
-"props": {
-"className": "rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "caption",
-"content": "Compounding advantage",
-"className": "text-emerald-200"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "metric",
-"content": "{{formatCurrency(derived.difference)}}",
-"className": "mt-2 text-3xl font-semibold text-white"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "success",
-"content": "That is the additional amount generated beyond simple interest.",
-"className": "mt-2 text-sm text-emerald-100"
-}
-}
-]
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Container",
-"props": {
-"className": "mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2"
-},
-"children": [
-{
-"type": "Card",
-"props": {
-"title": "Growth by year",
-"subtitle": "Simple interest grows linearly while compound returns accelerate.",
-"className": "rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl sm:p-6"
-},
-"children": [
-{
-"type": "BarChart",
-"props": {
-"labelKey": "label",
-"maxBars": 5,
-"className": "mt-4",
-"bars": [
-{
-"key": "simple",
-"label": "Simple",
-"className": "fill-sky-500"
-},
-{
-"key": "compound",
-"label": "Compound",
-"className": "fill-emerald-500"
-}
-],
-"data": [
-{
-"label": "Year 1",
-"simple": {
-"expr": "investment.principal + investment.principal * rateDecimal * min(1, investment.years)"
-},
-"compound": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * min(1, investment.years))"
-}
-},
-{
-"label": "Year 2",
-"simple": {
-"expr": "investment.principal + investment.principal * rateDecimal * min(2, investment.years)"
-},
-"compound": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * min(2, investment.years))"
-}
-},
-{
-"label": "Year 3",
-"simple": {
-"expr": "investment.principal + investment.principal * rateDecimal * min(3, investment.years)"
-},
-"compound": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * min(3, investment.years))"
-}
-},
-{
-"label": "Year 4",
-"simple": {
-"expr": "investment.principal + investment.principal * rateDecimal * min(4, investment.years)"
-},
-"compound": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * min(4, investment.years))"
-}
-},
-{
-"label": "Year 5",
-"simple": {
-"expr": "investment.principal + investment.principal * rateDecimal * min(5, investment.years)"
-},
-"compound": {
-"expr": "investment.principal * pow(1 + rateDecimal / investment.compoundFrequency, investment.compoundFrequency * min(5, investment.years))"
-}
-}
-]
-}
-}
-]
-},
-{
-"type": "Card",
-"props": {
-"title": "How to read this tracker",
-"subtitle": "Use this panel to explain the numbers quickly.",
-"className": "rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl sm:p-6"
-},
-"children": [
-{
-"type": "Container",
-"props": {
-"className": "grid grid-cols-1 gap-4"
-},
-"children": [
-{
-"type": "Card",
-"props": {
-"className": "rounded-2xl border border-white/10 bg-slate-950/70 p-4"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "caption",
-"content": "Simple interest",
-"className": "text-sky-300"
-}
-},
-{
-"type": "Text",
-"props": {
-"content": "Interest is calculated only on the original principal, so each year adds the same fixed amount.",
-"className": "mt-2 text-sm leading-6 text-slate-300"
-}
-}
-]
-},
-{
-"type": "Card",
-"props": {
-"className": "rounded-2xl border border-white/10 bg-slate-950/70 p-4"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "caption",
-"content": "Compound interest",
-"className": "text-emerald-300"
-}
-},
-{
-"type": "Text",
-"props": {
-"content": "Each compounding cycle adds interest back into the base amount, so future interest is earned on both principal and past interest.",
-"className": "mt-2 text-sm leading-6 text-slate-300"
-}
-}
-]
-},
-{
-"type": "Card",
-"props": {
-"className": "rounded-2xl border border-white/10 bg-slate-950/70 p-4"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "caption",
-"content": "Best use case",
-"className": "text-amber-300"
-}
-},
-{
-"type": "Text",
-"props": {
-"content": "Use this view for savings plans, FD comparisons, lending examples, and quick client-side financial explainers.",
-"className": "mt-2 text-sm leading-6 text-slate-300"
-}
-}
-]
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Container",
-"props": {
-"className": "mt-8 rounded-3xl border border-white/10 bg-slate-900/70 p-6 text-center shadow-xl sm:p-8"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "display",
-"content": "The longer the horizon, the bigger the compounding gap.",
-"className": "text-2xl font-semibold text-white sm:text-3xl"
-}
-},
-{
-"type": "Text",
-"props": {
-"tone": "lead",
-"content": "Current projection: compound returns are ahead by {{formatCurrency(derived.difference)}} on a base amount of {{formatCurrency(investment.principal)}}.",
-"className": "mx-auto mt-3 max-w-3xl text-slate-300"
-}
-},
-{
-"type": "Container",
-"props": {
-"variant": "actions",
-"className": "mt-6 flex justify-center"
-},
-"children": [
-{
-"type": "Button",
-"props": {
-"label": "Review live totals",
-"variant": "primary",
-"onClick": {
-"action": "showSummary"
-},
-"className": "rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-slate-200"
-}
-}
-]
-}
-]
-},
-{
-"type": "Container",
-"props": {
-"className": "mt-8 border-t border-white/10 py-6"
-},
-"children": [
-{
-"type": "Text",
-"props": {
-"tone": "note",
-"content": "Built as a responsive finance explainer with live comparisons, reusable inputs, and chart-based storytelling.",
-"className": "text-center text-sm text-slate-500"
-}
-}
-]
-}
-]
-}
-]
-}
+  "state": {
+    "selectedPreset": "earth",
+    "customGravity": 9.81,
+    "dropHeight": 8,
+    "bounce": 0.55,
+    "play": true,
+    "resetKey": 0,
+    "planetPresets": [
+      {
+        "label": "Moon",
+        "value": "moon"
+      },
+      {
+        "label": "Mars",
+        "value": "mars"
+      },
+      {
+        "label": "Earth",
+        "value": "earth"
+      },
+      {
+        "label": "Jupiter",
+        "value": "jupiter"
+      },
+      {
+        "label": "Custom",
+        "value": "custom"
+      }
+    ],
+    "objects": [
+      {
+        "label": "Rubber ball",
+        "className": "bg-sky-400",
+        "x": 14,
+        "size": 50,
+        "bounceMultiplier": 1.2
+      },
+      {
+        "label": "Metal ball",
+        "className": "bg-slate-400",
+        "x": 42,
+        "size": 46,
+        "bounceMultiplier": 0.7
+      },
+      {
+        "label": "Tennis ball",
+        "className": "bg-lime-400",
+        "x": 70,
+        "size": 44,
+        "bounceMultiplier": 1.05
+      }
+    ],
+    "planetFacts": [
+      {
+        "planet": "Moon",
+        "gravity": "1.62 m/s²",
+        "feel": "Very floaty"
+      },
+      {
+        "planet": "Mars",
+        "gravity": "3.71 m/s²",
+        "feel": "Noticeably lighter"
+      },
+      {
+        "planet": "Earth",
+        "gravity": "9.81 m/s²",
+        "feel": "Familiar baseline"
+      },
+      {
+        "planet": "Jupiter",
+        "gravity": "24.79 m/s²",
+        "feel": "Heavy and fast"
+      }
+    ],
+    "learningCards": [
+      {
+        "title": "Same law, different worlds",
+        "description": "Gravity changes acceleration, not the rule itself. That is why the same scene can feel completely different from one planet to another."
+      },
+      {
+        "title": "Realtime feedback",
+        "description": "Changing gravity immediately updates the simulation, fall time, and impact speed so the page feels interactive instead of static."
+      },
+      {
+        "title": "Made for experimentation",
+        "description": "Use presets for quick comparisons or enter a custom gravity value to imagine motion on your own fictional planet."
+      }
+    ],
+    "faq": [
+      {
+        "title": "Why do all objects fall together here?",
+        "description": "This demo focuses on gravity strength. Without air resistance, mass does not change the rate of free-fall acceleration."
+      },
+      {
+        "title": "What changes when gravity increases?",
+        "description": "The fall happens faster, the time to impact drops, and the final speed rises."
+      },
+      {
+        "title": "What does bounce control?",
+        "description": "Bounce changes how much energy remains after hitting the floor, making rebounds lower or stronger."
+      }
+    ]
+  },
+  "derived": {
+    "activeGravity": "selectedPreset == 'custom' ? customGravity : selectedPreset == 'moon' ? 1.62 : selectedPreset == 'mars' ? 3.71 : selectedPreset == 'jupiter' ? 24.79 : 9.81",
+    "fallTime": "sqrt((2 * dropHeight) / max(activeGravity, 0.1))",
+    "impactSpeed": "sqrt(2 * activeGravity * dropHeight)",
+    "gravityLabel": "round(activeGravity * 100) / 100",
+    "strengthLevel": "activeGravity < 3 ? 'Low gravity' : activeGravity < 12 ? 'Moderate gravity' : 'High gravity'",
+    "gravityPercentOfEarth": "round((activeGravity / 9.81) * 100)"
+  },
+  "actions": {
+    "applyCurrentSettings": [
+      {
+        "type": "condition",
+        "test": "selectedPreset == 'custom'",
+        "then": [
+          {
+            "type": "validate",
+            "rules": [
+              {
+                "field": "customGravity",
+                "required": true,
+                "message": "Custom gravity is required"
+              },
+              {
+                "field": "customGravity",
+                "test": "value > 0",
+                "message": "Gravity must be greater than 0"
+              }
+            ]
+          },
+          {
+            "type": "condition",
+            "test": "!hasErrors(runtime.errors)",
+            "then": [
+              {
+                "type": "set",
+                "values": {
+                  "resetKey": {
+                    "expr": "resetKey + 1"
+                  },
+                  "play": true
+                },
+                "clearErrors": true
+              }
+            ]
+          }
+        ],
+        "else": [
+          {
+            "type": "set",
+            "values": {
+              "resetKey": {
+                "expr": "resetKey + 1"
+              },
+              "play": true
+            },
+            "clearErrors": true
+          }
+        ]
+      }
+    ],
+    "togglePlay": [
+      {
+        "type": "set",
+        "values": {
+          "play": {
+            "expr": "!play"
+          }
+        }
+      }
+    ],
+    "resetSimulation": [
+      {
+        "type": "set",
+        "values": {
+          "selectedPreset": "earth",
+          "customGravity": 9.81,
+          "dropHeight": 8,
+          "bounce": 0.55,
+          "play": true,
+          "resetKey": 0
+        },
+        "clearErrors": true
+      }
+    ]
+  },
+  "ui": {
+    "type": "Div",
+    "props": {
+      "className": "min-h-screen bg-slate-950 text-slate-50"
+    },
+    "children": [
+      {
+        "type": "Section",
+        "props": {
+          "className": "border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
+        },
+        "children": [
+          {
+            "type": "Div",
+            "props": {
+              "className": "mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
+            },
+            "children": [
+              {
+                "type": "Div",
+                "props": {
+                  "className": "space-y-6"
+                },
+                "children": [
+                  {
+                    "type": "Badge",
+                    "props": {
+                      "label": "Physics Playground",
+                      "variant": "secondary",
+                      "className": "w-fit border border-sky-400/30 bg-sky-400/10 text-sky-200"
+                    }
+                  },
+                  {
+                    "type": "H1",
+                    "props": {
+                      "content": "Drop objects under different gravity values and watch them bounce",
+                      "className": "max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+                    }
+                  },
+                  {
+                    "type": "P",
+                    "props": {
+                      "content": "Explore the Moon, Mars, Earth, Jupiter, or your own custom gravity. Change the controls and replay the scene instantly.",
+                      "className": "max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
+                    }
+                  },
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "flex flex-wrap gap-3"
+                    },
+                    "children": [
+                      {
+                        "type": "Badge",
+                        "props": {
+                          "label": "Live simulation",
+                          "variant": "outline",
+                          "className": "border-white/15 text-slate-200"
+                        }
+                      },
+                      {
+                        "type": "Badge",
+                        "props": {
+                          "label": "Reusable schema blocks",
+                          "variant": "outline",
+                          "className": "border-white/15 text-slate-200"
+                        }
+                      },
+                      {
+                        "type": "Badge",
+                        "props": {
+                          "label": "Custom gravity",
+                          "variant": "outline",
+                          "className": "border-white/15 text-slate-200"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "Quick stats",
+                  "description": "Current simulation values update as you change gravity.",
+                  "className": "border-white/10 bg-white/5 text-white backdrop-blur"
+                },
+                "children": [
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "grid gap-4 sm:grid-cols-3"
+                    },
+                    "children": [
+                      {
+                        "type": "StatCard",
+                        "props": {
+                          "label": "Gravity",
+                          "value": "{{gravityLabel}} m/s²",
+                          "className": "border-white/10 bg-slate-900/60 text-white"
+                        }
+                      },
+                      {
+                        "type": "StatCard",
+                        "props": {
+                          "label": "Fall time",
+                          "value": "{{round(fallTime * 100) / 100}} s",
+                          "className": "border-white/10 bg-slate-900/60 text-white"
+                        }
+                      },
+                      {
+                        "type": "StatCard",
+                        "props": {
+                          "label": "Impact speed",
+                          "value": "{{round(impactSpeed * 100) / 100}} m/s",
+                          "className": "border-white/10 bg-slate-900/60 text-white"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "props": {
+          "className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
+        },
+        "children": [
+          {
+            "type": "Div",
+            "props": {
+              "className": "grid gap-8 lg:grid-cols-[420px_minmax(0,1fr)]"
+            },
+            "children": [
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "Controls",
+                  "description": "Choose a planet, tweak gravity, and restart the drop instantly.",
+                  "className": "border-white/10 bg-slate-900/70 text-white"
+                },
+                "children": [
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "space-y-6"
+                    },
+                    "children": [
+                      {
+                        "type": "Select",
+                        "props": {
+                          "label": "Gravity preset",
+                          "value": {
+                            "bind": "selectedPreset"
+                          },
+                          "options": {
+                            "expr": "planetPresets"
+                          },
+                          "className": "w-full"
+                        }
+                      },
+                      {
+                        "type": "Button",
+                        "props": {
+                          "label": "Apply current setting",
+                          "onClick": {
+                            "action": "applyCurrentSettings"
+                          },
+                          "variant": "primary",
+                          "className": "w-full"
+                        }
+                      },
+                      {
+                        "type": "Input",
+                        "props": {
+                          "label": "Custom gravity (m/s²)",
+                          "type": "number",
+                          "value": {
+                            "bind": "customGravity",
+                            "transform": "+input"
+                          },
+                          "min": 0.1,
+                          "step": 0.01,
+                          "hint": "Use this when the preset is set to Custom",
+                          "error": {
+                            "expr": "runtime.errors.customGravity"
+                          },
+                          "className": "w-full"
+                        },
+                        "visibleWhen": "selectedPreset == 'custom'"
+                      },
+                      {
+                        "type": "Button",
+                        "props": {
+                          "label": "Use custom gravity",
+                          "onClick": {
+                            "action": "applyCurrentSettings"
+                          },
+                          "variant": "secondary",
+                          "className": "w-full"
+                        },
+                        "visibleWhen": "selectedPreset == 'custom'"
+                      },
+                      {
+                        "type": "Separator",
+                        "props": {
+                          "orientation": "horizontal",
+                          "className": "bg-white/10"
+                        }
+                      },
+                      {
+                        "type": "Slider",
+                        "props": {
+                          "label": "Drop height",
+                          "value": {
+                            "bind": "dropHeight"
+                          },
+                          "min": 2,
+                          "max": 12,
+                          "step": 0.5,
+                          "suffix": "m",
+                          "hint": "Higher drop height increases fall time and impact speed.",
+                          "className": "w-full"
+                        }
+                      },
+                      {
+                        "type": "Slider",
+                        "props": {
+                          "label": "Global bounce",
+                          "value": {
+                            "bind": "bounce"
+                          },
+                          "min": 0,
+                          "max": 1,
+                          "step": 0.05,
+                          "hint": "Controls how much motion remains after impact.",
+                          "className": "w-full"
+                        }
+                      },
+                      {
+                        "type": "Div",
+                        "props": {
+                          "className": "grid gap-3 sm:grid-cols-2"
+                        },
+                        "children": [
+                          {
+                            "type": "Button",
+                            "props": {
+                              "label": "Play / Pause",
+                              "onClick": {
+                                "action": "togglePlay"
+                              },
+                              "variant": "primary",
+                              "className": "w-full"
+                            }
+                          },
+                          {
+                            "type": "Button",
+                            "props": {
+                              "label": "Reset",
+                              "onClick": {
+                                "action": "resetSimulation"
+                              },
+                              "variant": "secondary",
+                              "className": "w-full"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alert",
+                        "props": {
+                          "className": "border-white/10 bg-slate-950/70"
+                        },
+                        "children": [
+                          {
+                            "type": "AlertTitle",
+                            "props": {
+                              "content": "{{strengthLevel}}",
+                              "className": "text-slate-100"
+                            }
+                          },
+                          {
+                            "type": "AlertDescription",
+                            "props": {
+                              "content": "This setting is about {{gravityPercentOfEarth}}% of Earth's gravity.",
+                              "className": "text-slate-300"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "Live drop simulation",
+                  "description": "Watch the same scene respond to changing gravity values in real time.",
+                  "className": "border-white/10 bg-slate-900/70 text-white"
+                },
+                "children": [
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "space-y-4"
+                    },
+                    "children": [
+                      {
+                        "type": "DropSimulation",
+                        "props": {
+                          "gravity": {
+                            "expr": "activeGravity"
+                          },
+                          "height": {
+                            "expr": "dropHeight"
+                          },
+                          "objects": {
+                            "expr": "objects"
+                          },
+                          "bounce": {
+                            "expr": "bounce"
+                          },
+                          "play": {
+                            "expr": "play"
+                          },
+                          "resetKey": {
+                            "expr": "resetKey"
+                          },
+                          "className": "w-full rounded-2xl border border-white/10 bg-slate-950"
+                        }
+                      },
+                      {
+                        "type": "Div",
+                        "props": {
+                          "className": "grid gap-4 md:grid-cols-4"
+                        },
+                        "children": [
+                          {
+                            "type": "StatCard",
+                            "props": {
+                              "label": "Gravity",
+                              "value": "{{gravityLabel}} m/s²",
+                              "className": "border-white/10 bg-slate-950/70 text-white"
+                            }
+                          },
+                          {
+                            "type": "StatCard",
+                            "props": {
+                              "label": "Fall time",
+                              "value": "{{round(fallTime * 100) / 100}} s",
+                              "className": "border-white/10 bg-slate-950/70 text-white"
+                            }
+                          },
+                          {
+                            "type": "StatCard",
+                            "props": {
+                              "label": "Impact speed",
+                              "value": "{{round(impactSpeed * 100) / 100}} m/s",
+                              "className": "border-white/10 bg-slate-950/70 text-white"
+                            }
+                          },
+                          {
+                            "type": "StatCard",
+                            "props": {
+                              "label": "Bounce",
+                              "value": "{{round(bounce * 100)}}%",
+                              "className": "border-white/10 bg-slate-950/70 text-white"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "props": {
+          "className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-16"
+        },
+        "children": [
+          {
+            "type": "Div",
+            "props": {
+              "className": "grid gap-6 lg:grid-cols-2"
+            },
+            "children": [
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "Gravity comparison",
+                  "description": "Compare common planetary gravity values at a glance.",
+                  "className": "border-white/10 bg-slate-900/70 text-white"
+                },
+                "children": [
+                  {
+                    "type": "DataTable",
+                    "props": {
+                      "className": "w-full",
+                      "columns": [
+                        {
+                          "key": "planet",
+                          "label": "Planet",
+                          "headerClassName": "text-slate-300"
+                        },
+                        {
+                          "key": "gravity",
+                          "label": "Gravity",
+                          "headerClassName": "text-slate-300"
+                        },
+                        {
+                          "key": "feel",
+                          "label": "Relative feel",
+                          "headerClassName": "text-slate-300"
+                        }
+                      ],
+                      "rows": {
+                        "expr": "planetFacts"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "What to notice",
+                  "description": "Key ideas to observe while you change the simulation.",
+                  "className": "border-white/10 bg-slate-900/70 text-white"
+                },
+                "children": [
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "grid gap-4 md:grid-cols-3"
+                    },
+                    "children": [
+                      {
+                        "type": "InfoCard",
+                        "each": {
+                          "expr": "learningCards",
+                          "item": "card",
+                          "index": "i"
+                        },
+                        "props": {
+                          "title": {
+                            "expr": "card.title"
+                          },
+                          "description": {
+                            "expr": "card.description"
+                          },
+                          "className": "border-white/10 bg-slate-950/60 text-white"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "props": {
+          "className": "border-t border-white/10 bg-slate-900/50"
+        },
+        "children": [
+          {
+            "type": "Div",
+            "props": {
+              "className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+            },
+            "children": [
+              {
+                "type": "SectionCard",
+                "props": {
+                  "title": "Frequently asked questions",
+                  "description": "Simple explanations for what the simulation is showing.",
+                  "className": "border-white/10 bg-slate-900/70 text-white"
+                },
+                "children": [
+                  {
+                    "type": "Div",
+                    "props": {
+                      "className": "grid gap-4 md:grid-cols-3"
+                    },
+                    "children": [
+                      {
+                        "type": "InfoCard",
+                        "each": {
+                          "expr": "faq",
+                          "item": "faqItem",
+                          "index": "i"
+                        },
+                        "props": {
+                          "title": {
+                            "expr": "faqItem.title"
+                          },
+                          "description": {
+                            "expr": "faqItem.description"
+                          },
+                          "className": "border-white/10 bg-slate-950/60 text-white"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
