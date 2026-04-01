@@ -1,715 +1,956 @@
 {
-  "state": {
-    "selectedPreset": "earth",
-    "customGravity": 9.81,
-    "dropHeight": 8,
-    "bounce": 0.55,
-    "play": true,
-    "resetKey": 0,
-    "planetPresets": [
-      {
-        "label": "Moon",
-        "value": "moon"
-      },
-      {
-        "label": "Mars",
-        "value": "mars"
-      },
-      {
-        "label": "Earth",
-        "value": "earth"
-      },
-      {
-        "label": "Jupiter",
-        "value": "jupiter"
-      },
-      {
-        "label": "Custom",
-        "value": "custom"
-      }
-    ],
-    "objects": [
-      {
-        "label": "Rubber ball",
-        "className": "bg-sky-400",
-        "x": 14,
-        "size": 50,
-        "bounceMultiplier": 1.2
-      },
-      {
-        "label": "Metal ball",
-        "className": "bg-slate-400",
-        "x": 42,
-        "size": 46,
-        "bounceMultiplier": 0.7
-      },
-      {
-        "label": "Tennis ball",
-        "className": "bg-lime-400",
-        "x": 70,
-        "size": 44,
-        "bounceMultiplier": 1.05
-      }
-    ],
-    "planetFacts": [
-      {
-        "planet": "Moon",
-        "gravity": "1.62 m/s²",
-        "feel": "Very floaty"
-      },
-      {
-        "planet": "Mars",
-        "gravity": "3.71 m/s²",
-        "feel": "Noticeably lighter"
-      },
-      {
-        "planet": "Earth",
-        "gravity": "9.81 m/s²",
-        "feel": "Familiar baseline"
-      },
-      {
-        "planet": "Jupiter",
-        "gravity": "24.79 m/s²",
-        "feel": "Heavy and fast"
-      }
-    ],
-    "learningCards": [
-      {
-        "title": "Same law, different worlds",
-        "description": "Gravity changes acceleration, not the rule itself. That is why the same scene can feel completely different from one planet to another."
-      },
-      {
-        "title": "Realtime feedback",
-        "description": "Changing gravity immediately updates the simulation, fall time, and impact speed so the page feels interactive instead of static."
-      },
-      {
-        "title": "Made for experimentation",
-        "description": "Use presets for quick comparisons or enter a custom gravity value to imagine motion on your own fictional planet."
-      }
-    ],
-    "faq": [
-      {
-        "title": "Why do all objects fall together here?",
-        "description": "This demo focuses on gravity strength. Without air resistance, mass does not change the rate of free-fall acceleration."
-      },
-      {
-        "title": "What changes when gravity increases?",
-        "description": "The fall happens faster, the time to impact drops, and the final speed rises."
-      },
-      {
-        "title": "What does bounce control?",
-        "description": "Bounce changes how much energy remains after hitting the floor, making rebounds lower or stronger."
-      }
-    ]
-  },
-  "derived": {
-    "activeGravity": "selectedPreset == 'custom' ? customGravity : selectedPreset == 'moon' ? 1.62 : selectedPreset == 'mars' ? 3.71 : selectedPreset == 'jupiter' ? 24.79 : 9.81",
-    "fallTime": "sqrt((2 * dropHeight) / max(activeGravity, 0.1))",
-    "impactSpeed": "sqrt(2 * activeGravity * dropHeight)",
-    "gravityLabel": "round(activeGravity * 100) / 100",
-    "strengthLevel": "activeGravity < 3 ? 'Low gravity' : activeGravity < 12 ? 'Moderate gravity' : 'High gravity'",
-    "gravityPercentOfEarth": "round((activeGravity / 9.81) * 100)"
-  },
-  "actions": {
-    "applyCurrentSettings": [
-      {
-        "type": "condition",
-        "test": "selectedPreset == 'custom'",
-        "then": [
-          {
-            "type": "validate",
-            "rules": [
-              {
-                "field": "customGravity",
-                "required": true,
-                "message": "Custom gravity is required"
-              },
-              {
-                "field": "customGravity",
-                "test": "value > 0",
-                "message": "Gravity must be greater than 0"
-              }
-            ]
-          },
-          {
-            "type": "condition",
-            "test": "!hasErrors(runtime.errors)",
-            "then": [
-              {
-                "type": "set",
-                "values": {
-                  "resetKey": {
-                    "expr": "resetKey + 1"
-                  },
-                  "play": true
-                },
-                "clearErrors": true
-              }
-            ]
-          }
-        ],
-        "else": [
-          {
-            "type": "set",
-            "values": {
-              "resetKey": {
-                "expr": "resetKey + 1"
-              },
-              "play": true
-            },
-            "clearErrors": true
-          }
-        ]
-      }
-    ],
-    "togglePlay": [
-      {
-        "type": "set",
-        "values": {
-          "play": {
-            "expr": "!play"
-          }
-        }
-      }
-    ],
-    "resetSimulation": [
-      {
-        "type": "set",
-        "values": {
-          "selectedPreset": "earth",
-          "customGravity": 9.81,
-          "dropHeight": 8,
-          "bounce": 0.55,
-          "play": true,
-          "resetKey": 0
-        },
-        "clearErrors": true
-      }
-    ]
-  },
-  "ui": {
-    "type": "Div",
-    "props": {
-      "className": "min-h-screen bg-slate-950 text-slate-50"
-    },
-    "children": [
-      {
-        "type": "Section",
-        "props": {
-          "className": "border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
-        },
-        "children": [
-          {
-            "type": "Div",
-            "props": {
-              "className": "mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20"
-            },
-            "children": [
-              {
-                "type": "Div",
-                "props": {
-                  "className": "space-y-6"
-                },
-                "children": [
-                  {
-                    "type": "Badge",
-                    "props": {
-                      "label": "Physics Playground",
-                      "variant": "secondary",
-                      "className": "w-fit border border-sky-400/30 bg-sky-400/10 text-sky-200"
-                    }
-                  },
-                  {
-                    "type": "H1",
-                    "props": {
-                      "content": "Drop objects under different gravity values and watch them bounce",
-                      "className": "max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
-                    }
-                  },
-                  {
-                    "type": "P",
-                    "props": {
-                      "content": "Explore the Moon, Mars, Earth, Jupiter, or your own custom gravity. Change the controls and replay the scene instantly.",
-                      "className": "max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
-                    }
-                  },
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "flex flex-wrap gap-3"
-                    },
-                    "children": [
-                      {
-                        "type": "Badge",
-                        "props": {
-                          "label": "Live simulation",
-                          "variant": "outline",
-                          "className": "border-white/15 text-slate-200"
-                        }
-                      },
-                      {
-                        "type": "Badge",
-                        "props": {
-                          "label": "Reusable schema blocks",
-                          "variant": "outline",
-                          "className": "border-white/15 text-slate-200"
-                        }
-                      },
-                      {
-                        "type": "Badge",
-                        "props": {
-                          "label": "Custom gravity",
-                          "variant": "outline",
-                          "className": "border-white/15 text-slate-200"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "Quick stats",
-                  "description": "Current simulation values update as you change gravity.",
-                  "className": "border-white/10 bg-white/5 text-white backdrop-blur"
-                },
-                "children": [
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "grid gap-4 sm:grid-cols-3"
-                    },
-                    "children": [
-                      {
-                        "type": "StatCard",
-                        "props": {
-                          "label": "Gravity",
-                          "value": "{{gravityLabel}} m/s²",
-                          "className": "border-white/10 bg-slate-900/60 text-white"
-                        }
-                      },
-                      {
-                        "type": "StatCard",
-                        "props": {
-                          "label": "Fall time",
-                          "value": "{{round(fallTime * 100) / 100}} s",
-                          "className": "border-white/10 bg-slate-900/60 text-white"
-                        }
-                      },
-                      {
-                        "type": "StatCard",
-                        "props": {
-                          "label": "Impact speed",
-                          "value": "{{round(impactSpeed * 100) / 100}} m/s",
-                          "className": "border-white/10 bg-slate-900/60 text-white"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "Section",
-        "props": {
-          "className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
-        },
-        "children": [
-          {
-            "type": "Div",
-            "props": {
-              "className": "grid gap-8 lg:grid-cols-[420px_minmax(0,1fr)]"
-            },
-            "children": [
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "Controls",
-                  "description": "Choose a planet, tweak gravity, and restart the drop instantly.",
-                  "className": "border-white/10 bg-slate-900/70 text-white"
-                },
-                "children": [
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "space-y-6"
-                    },
-                    "children": [
-                      {
-                        "type": "Select",
-                        "props": {
-                          "label": "Gravity preset",
-                          "value": {
-                            "bind": "selectedPreset"
-                          },
-                          "options": {
-                            "expr": "planetPresets"
-                          },
-                          "className": "w-full"
-                        }
-                      },
-                      {
-                        "type": "Button",
-                        "props": {
-                          "label": "Apply current setting",
-                          "onClick": {
-                            "action": "applyCurrentSettings"
-                          },
-                          "variant": "primary",
-                          "className": "w-full"
-                        }
-                      },
-                      {
-                        "type": "Input",
-                        "props": {
-                          "label": "Custom gravity (m/s²)",
-                          "type": "number",
-                          "value": {
-                            "bind": "customGravity",
-                            "transform": "+input"
-                          },
-                          "min": 0.1,
-                          "step": 0.01,
-                          "hint": "Use this when the preset is set to Custom",
-                          "error": {
-                            "expr": "runtime.errors.customGravity"
-                          },
-                          "className": "w-full"
-                        },
-                        "visibleWhen": "selectedPreset == 'custom'"
-                      },
-                      {
-                        "type": "Button",
-                        "props": {
-                          "label": "Use custom gravity",
-                          "onClick": {
-                            "action": "applyCurrentSettings"
-                          },
-                          "variant": "secondary",
-                          "className": "w-full"
-                        },
-                        "visibleWhen": "selectedPreset == 'custom'"
-                      },
-                      {
-                        "type": "Separator",
-                        "props": {
-                          "orientation": "horizontal",
-                          "className": "bg-white/10"
-                        }
-                      },
-                      {
-                        "type": "Slider",
-                        "props": {
-                          "label": "Drop height",
-                          "value": {
-                            "bind": "dropHeight"
-                          },
-                          "min": 2,
-                          "max": 12,
-                          "step": 0.5,
-                          "suffix": "m",
-                          "hint": "Higher drop height increases fall time and impact speed.",
-                          "className": "w-full"
-                        }
-                      },
-                      {
-                        "type": "Slider",
-                        "props": {
-                          "label": "Global bounce",
-                          "value": {
-                            "bind": "bounce"
-                          },
-                          "min": 0,
-                          "max": 1,
-                          "step": 0.05,
-                          "hint": "Controls how much motion remains after impact.",
-                          "className": "w-full"
-                        }
-                      },
-                      {
-                        "type": "Div",
-                        "props": {
-                          "className": "grid gap-3 sm:grid-cols-2"
-                        },
-                        "children": [
-                          {
-                            "type": "Button",
-                            "props": {
-                              "label": "Play / Pause",
-                              "onClick": {
-                                "action": "togglePlay"
-                              },
-                              "variant": "primary",
-                              "className": "w-full"
-                            }
-                          },
-                          {
-                            "type": "Button",
-                            "props": {
-                              "label": "Reset",
-                              "onClick": {
-                                "action": "resetSimulation"
-                              },
-                              "variant": "secondary",
-                              "className": "w-full"
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        "type": "Alert",
-                        "props": {
-                          "className": "border-white/10 bg-slate-950/70"
-                        },
-                        "children": [
-                          {
-                            "type": "AlertTitle",
-                            "props": {
-                              "content": "{{strengthLevel}}",
-                              "className": "text-slate-100"
-                            }
-                          },
-                          {
-                            "type": "AlertDescription",
-                            "props": {
-                              "content": "This setting is about {{gravityPercentOfEarth}}% of Earth's gravity.",
-                              "className": "text-slate-300"
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "Live drop simulation",
-                  "description": "Watch the same scene respond to changing gravity values in real time.",
-                  "className": "border-white/10 bg-slate-900/70 text-white"
-                },
-                "children": [
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "space-y-4"
-                    },
-                    "children": [
-                      {
-                        "type": "DropSimulation",
-                        "props": {
-                          "gravity": {
-                            "expr": "activeGravity"
-                          },
-                          "height": {
-                            "expr": "dropHeight"
-                          },
-                          "objects": {
-                            "expr": "objects"
-                          },
-                          "bounce": {
-                            "expr": "bounce"
-                          },
-                          "play": {
-                            "expr": "play"
-                          },
-                          "resetKey": {
-                            "expr": "resetKey"
-                          },
-                          "className": "w-full rounded-2xl border border-white/10 bg-slate-950"
-                        }
-                      },
-                      {
-                        "type": "Div",
-                        "props": {
-                          "className": "grid gap-4 md:grid-cols-4"
-                        },
-                        "children": [
-                          {
-                            "type": "StatCard",
-                            "props": {
-                              "label": "Gravity",
-                              "value": "{{gravityLabel}} m/s²",
-                              "className": "border-white/10 bg-slate-950/70 text-white"
-                            }
-                          },
-                          {
-                            "type": "StatCard",
-                            "props": {
-                              "label": "Fall time",
-                              "value": "{{round(fallTime * 100) / 100}} s",
-                              "className": "border-white/10 bg-slate-950/70 text-white"
-                            }
-                          },
-                          {
-                            "type": "StatCard",
-                            "props": {
-                              "label": "Impact speed",
-                              "value": "{{round(impactSpeed * 100) / 100}} m/s",
-                              "className": "border-white/10 bg-slate-950/70 text-white"
-                            }
-                          },
-                          {
-                            "type": "StatCard",
-                            "props": {
-                              "label": "Bounce",
-                              "value": "{{round(bounce * 100)}}%",
-                              "className": "border-white/10 bg-slate-950/70 text-white"
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "Section",
-        "props": {
-          "className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8 lg:pb-16"
-        },
-        "children": [
-          {
-            "type": "Div",
-            "props": {
-              "className": "grid gap-6 lg:grid-cols-2"
-            },
-            "children": [
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "Gravity comparison",
-                  "description": "Compare common planetary gravity values at a glance.",
-                  "className": "border-white/10 bg-slate-900/70 text-white"
-                },
-                "children": [
-                  {
-                    "type": "DataTable",
-                    "props": {
-                      "className": "w-full",
-                      "columns": [
-                        {
-                          "key": "planet",
-                          "label": "Planet",
-                          "headerClassName": "text-slate-300"
-                        },
-                        {
-                          "key": "gravity",
-                          "label": "Gravity",
-                          "headerClassName": "text-slate-300"
-                        },
-                        {
-                          "key": "feel",
-                          "label": "Relative feel",
-                          "headerClassName": "text-slate-300"
-                        }
-                      ],
-                      "rows": {
-                        "expr": "planetFacts"
-                      }
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "What to notice",
-                  "description": "Key ideas to observe while you change the simulation.",
-                  "className": "border-white/10 bg-slate-900/70 text-white"
-                },
-                "children": [
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "grid gap-4 md:grid-cols-3"
-                    },
-                    "children": [
-                      {
-                        "type": "InfoCard",
-                        "each": {
-                          "expr": "learningCards",
-                          "item": "card",
-                          "index": "i"
-                        },
-                        "props": {
-                          "title": {
-                            "expr": "card.title"
-                          },
-                          "description": {
-                            "expr": "card.description"
-                          },
-                          "className": "border-white/10 bg-slate-950/60 text-white"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "Section",
-        "props": {
-          "className": "border-t border-white/10 bg-slate-900/50"
-        },
-        "children": [
-          {
-            "type": "Div",
-            "props": {
-              "className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
-            },
-            "children": [
-              {
-                "type": "SectionCard",
-                "props": {
-                  "title": "Frequently asked questions",
-                  "description": "Simple explanations for what the simulation is showing.",
-                  "className": "border-white/10 bg-slate-900/70 text-white"
-                },
-                "children": [
-                  {
-                    "type": "Div",
-                    "props": {
-                      "className": "grid gap-4 md:grid-cols-3"
-                    },
-                    "children": [
-                      {
-                        "type": "InfoCard",
-                        "each": {
-                          "expr": "faq",
-                          "item": "faqItem",
-                          "index": "i"
-                        },
-                        "props": {
-                          "title": {
-                            "expr": "faqItem.title"
-                          },
-                          "description": {
-                            "expr": "faqItem.description"
-                          },
-                          "className": "border-white/10 bg-slate-950/60 text-white"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+"state": {
+"selectedPreset": "earth",
+"gravity": 9.81,
+"customGravity": 9.81,
+"dropHeight": 18,
+"bounce": 0.58,
+"play": true,
+"resetKey": 0,
+"presetOptions": [
+{
+"label": "Moon",
+"value": "moon"
+},
+{
+"label": "Mars",
+"value": "mars"
+},
+{
+"label": "Earth",
+"value": "earth"
+},
+{
+"label": "Jupiter",
+"value": "jupiter"
+},
+{
+"label": "Custom",
+"value": "custom"
+}
+],
+"comparisonRows": [
+{
+"planet": {
+"content": "Moon",
+"className": "text-white"
+},
+"gravity": {
+"content": "1.62 m/s²",
+"className": "text-slate-300"
+},
+"effect": {
+"content": "Slow fall, floaty motion",
+"className": "text-slate-300"
+}
+},
+{
+"planet": {
+"content": "Mars",
+"className": "text-white"
+},
+"gravity": {
+"content": "3.71 m/s²",
+"className": "text-slate-300"
+},
+"effect": {
+"content": "Lighter than Earth",
+"className": "text-slate-300"
+}
+},
+{
+"planet": {
+"content": "Earth",
+"className": "text-white"
+},
+"gravity": {
+"content": "9.81 m/s²",
+"className": "text-slate-300"
+},
+"effect": {
+"content": "Familiar everyday motion",
+"className": "text-slate-300"
+}
+},
+{
+"planet": {
+"content": "Jupiter",
+"className": "text-white"
+},
+"gravity": {
+"content": "24.79 m/s²",
+"className": "text-slate-300"
+},
+"effect": {
+"content": "Fast and heavy pull",
+"className": "text-slate-300"
+}
+}
+],
+"conceptCards": [
+{
+"title": "What is gravitational force?",
+"description": "Gravitational force is the attractive force between masses. Bigger masses create stronger pull, and distance weakens that pull."
+},
+{
+"title": "Why do things fall?",
+"description": "Near a planet, gravity pulls objects toward the center of that planet. That downward pull creates acceleration."
+},
+{
+"title": "What changes in this simulation?",
+"description": "When gravity increases, the object speeds up faster, reaches the ground sooner, and hits with greater speed."
+}
+],
+"learningPoints": [
+{
+"question": "Mass vs weight",
+"answer": "Mass is how much matter an object has. Weight is the force of gravity acting on that mass, so weight changes from planet to planet."
+},
+{
+"question": "Acceleration due to gravity",
+"answer": "The value shown in m/s² tells you how much speed an object gains each second while falling."
+},
+{
+"question": "Bounce in the simulation",
+"answer": "Bounce is not gravity itself. It represents how much motion stays after a collision with the floor."
+}
+],
+"faqItems": [
+{
+"question": "Do heavier objects always fall faster?",
+"answer": "In ideal free fall without air resistance, objects accelerate at the same rate under the same gravity."
+},
+{
+"question": "Why is Jupiter gravity so high here?",
+"answer": "Jupiter is much more massive than Earth, so the gravitational pull near it is much stronger."
+},
+{
+"question": "Why does distance matter?",
+"answer": "The farther you are from a mass, the weaker the gravitational force becomes."
+},
+{
+"question": "Why can I enter custom gravity?",
+"answer": "It lets you imagine motion on fictional planets or compare different gravitational environments."
+}
+]
+},
+"derived": {
+"activeGravity": {
+"expr": "selectedPreset == 'custom' ? customGravity : gravity"
+},
+"fallTime": {
+"expr": "sqrt((2 * dropHeight) / max(activeGravity, 0.1))"
+},
+"impactSpeed": {
+"expr": "sqrt(2 * activeGravity * dropHeight)"
+},
+"earthPercent": {
+"expr": "round((activeGravity / 9.81) * 100)"
+},
+"gravityStrengthLabel": {
+"expr": "activeGravity < 3 ? 'Low gravity' : activeGravity < 12 ? 'Medium gravity' : 'High gravity'"
+},
+"weightOfTenKg": {
+"expr": "round(10 * activeGravity * 100) / 100"
+}
+},
+"actions": {
+"applyPreset": [
+{
+"type": "condition",
+"test": "selectedPreset == 'moon'",
+"then": [
+{
+"type": "set",
+"values": {
+"gravity": 1.62,
+"resetKey": {
+"expr": "resetKey + 1"
+}
+}
+}
+],
+"else": [
+{
+"type": "condition",
+"test": "selectedPreset == 'mars'",
+"then": [
+{
+"type": "set",
+"values": {
+"gravity": 3.71,
+"resetKey": {
+"expr": "resetKey + 1"
+}
+}
+}
+],
+"else": [
+{
+"type": "condition",
+"test": "selectedPreset == 'earth'",
+"then": [
+{
+"type": "set",
+"values": {
+"gravity": 9.81,
+"resetKey": {
+"expr": "resetKey + 1"
+}
+}
+}
+],
+"else": [
+{
+"type": "condition",
+"test": "selectedPreset == 'jupiter'",
+"then": [
+{
+"type": "set",
+"values": {
+"gravity": 24.79,
+"resetKey": {
+"expr": "resetKey + 1"
+}
+}
+}
+],
+"else": [
+{
+"type": "condition",
+"test": "selectedPreset == 'custom'",
+"then": [
+{
+"type": "run",
+"action": "applyCustomGravity"
+}
+]
+}
+]
+}
+]
+}
+]
+}
+]
+}
+],
+"applyCustomGravity": [
+{
+"type": "validate",
+"rules": [
+{
+"field": "customGravity",
+"required": true,
+"message": "Gravity is required"
+},
+{
+"field": "customGravity",
+"test": "value > 0",
+"message": "Gravity must be greater than 0"
+}
+]
+},
+{
+"type": "condition",
+"test": "!hasErrors(runtime.errors)",
+"then": [
+{
+"type": "set",
+"values": {
+"gravity": {
+"expr": "customGravity"
+},
+"resetKey": {
+"expr": "resetKey + 1"
+}
+}
+}
+]
+}
+],
+"togglePlay": [
+{
+"type": "set",
+"values": {
+"play": {
+"expr": "!play"
+}
+}
+}
+],
+"resetSimulation": [
+{
+"type": "set",
+"values": {
+"resetKey": {
+"expr": "resetKey + 1"
+},
+"play": true
+}
+}
+]
+},
+"ui": {
+"type": "Div",
+"props": {
+"className": "min-h-screen bg-slate-950 text-slate-50"
+},
+"children": [
+{
+"type": "Section",
+"props": {
+"className": "border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
+},
+"children": [
+{
+"type": "Div",
+"props": {
+"className": "mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20"
+},
+"children": [
+{
+"type": "Hero",
+"props": {
+"badge": "Physics lesson",
+"badgeVariant": "secondary",
+"title": "Understand gravitational force with a live simulation",
+"description": "Learn what gravity is, why objects fall, and how stronger or weaker gravity changes motion. Use the playground to compare planets and see the force in action.",
+"primaryActionLabel": "Reset simulation",
+"primaryAction": {
+"action": "resetSimulation"
+},
+"secondaryActionLabel": "Play or pause",
+"secondaryAction": {
+"action": "togglePlay"
+},
+"align": "left",
+"className": "rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur sm:p-8"
+},
+"children": [
+{
+"type": "MetricGrid",
+"props": {
+"items": [
+{
+"label": "Gravity",
+"value": "{{round(activeGravity * 100) / 100}} m/s²",
+"description": "Current gravitational acceleration"
+},
+{
+"label": "Fall time",
+"value": "{{round(fallTime * 100) / 100}} s",
+"description": "Time to reach the ground"
+},
+{
+"label": "Impact speed",
+"value": "{{round(impactSpeed * 100) / 100}} m/s",
+"description": "Speed just before impact"
+},
+{
+"label": "10 kg weight",
+"value": "{{weightOfTenKg}} N",
+"description": "Force on a 10 kg object here"
+}
+],
+"cols": 1,
+"sm": 2,
+"lg": 4,
+"gap": "md",
+"className": "mt-8"
+}
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "Section",
+"props": {
+"className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
+},
+"children": [
+{
+"type": "Grid",
+"props": {
+"cols": 1,
+"lg": 2,
+"gap": "lg",
+"className": "items-start"
+},
+"children": [
+{
+"type": "SectionCard",
+"props": {
+"badge": "Core idea",
+"title": "What gravitational force means",
+"description": "Gravity is a force of attraction between masses. Near a planet, it pulls objects downward and gives them acceleration.",
+"className": "border-white/10 bg-slate-900/70"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "md",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "FAQList",
+"props": {
+"items": {
+"expr": "conceptCards"
+},
+"cols": 1,
+"gap": "md",
+"className": "mt-2"
+}
+},
+{
+"type": "Alert",
+"props": {
+"className": "border-white/10 bg-slate-950/70"
+},
+"children": [
+{
+"type": "AlertTitle",
+"props": {
+"content": "Simple rule",
+"className": "text-slate-100"
+}
+},
+{
+"type": "AlertDescription",
+"props": {
+"content": "Stronger gravity means more acceleration every second. That is why objects fall faster on worlds with larger gravity values.",
+"className": "text-slate-300"
+}
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "SectionCard",
+"props": {
+"badge": "Key comparison",
+"title": "Mass, weight, and acceleration",
+"description": "These ideas are related, but they are not the same thing.",
+"className": "border-white/10 bg-slate-900/70"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "md",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "InfoCard",
+"props": {
+"title": "Mass",
+"description": "Mass measures how much matter an object has. It does not change when you move from one planet to another.",
+"className": "border border-white/10 bg-slate-950/60"
+}
+},
+{
+"type": "InfoCard",
+"props": {
+"title": "Weight",
+"description": "Weight is gravitational force acting on mass. For a 10 kg object here, the weight is {{weightOfTenKg}} newtons.",
+"className": "border border-white/10 bg-slate-950/60"
+}
+},
+{
+"type": "InfoCard",
+"props": {
+"title": "Acceleration",
+"description": "The current gravity of {{round(activeGravity * 100) / 100}} m/s² means the object's speed increases by about that much every second while it falls.",
+"className": "border border-white/10 bg-slate-950/60"
+}
+}
+]
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "Section",
+"props": {
+"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
+},
+"children": [
+{
+"type": "Grid",
+"props": {
+"cols": 1,
+"lg": 3,
+"gap": "lg",
+"className": "items-start"
+},
+"children": [
+{
+"type": "SectionCard",
+"props": {
+"badge": "Controls",
+"title": "Experiment with gravity",
+"description": "Change the environment and immediately see how the motion changes.",
+"className": "border-white/10 bg-slate-900/70 lg:col-span-1"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "md",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "Select",
+"props": {
+"label": "Planet preset",
+"options": {
+"expr": "presetOptions"
+},
+"value": {
+"bind": "selectedPreset"
+},
+"hint": "Choose a planet or switch to custom gravity.",
+"className": "w-full"
+}
+},
+{
+"type": "Button",
+"props": {
+"label": "Apply preset",
+"onClick": {
+"action": "applyPreset"
+},
+"variant": "primary",
+"className": "w-full"
+}
+},
+{
+"type": "Input",
+"props": {
+"label": "Custom gravity",
+"type": "number",
+"value": {
+"bind": "customGravity",
+"transform": "+input"
+},
+"min": 0.1,
+"max": 50,
+"step": 0.01,
+"hint": "Enter any positive value in m/s².",
+"error": {
+"expr": "runtime.errors.customGravity"
+},
+"className": "w-full"
+},
+"visibleWhen": "selectedPreset == 'custom'"
+},
+{
+"type": "Button",
+"props": {
+"label": "Use custom gravity",
+"onClick": {
+"action": "applyCustomGravity"
+},
+"variant": "secondary",
+"className": "w-full"
+},
+"visibleWhen": "selectedPreset == 'custom'"
+},
+{
+"type": "Separator",
+"props": {
+"orientation": "horizontal",
+"className": "bg-white/10"
+}
+},
+{
+"type": "Slider",
+"props": {
+"label": "Drop height",
+"value": {
+"bind": "dropHeight",
+"transform": "+input"
+},
+"min": 5,
+"max": 40,
+"step": 1,
+"suffix": " m",
+"hint": "Higher drops take longer and end with greater speed.",
+"className": "w-full"
+}
+},
+{
+"type": "Slider",
+"props": {
+"label": "Bounce",
+"value": {
+"bind": "bounce",
+"transform": "+input"
+},
+"min": 0,
+"max": 1,
+"step": 0.05,
+"suffix": "",
+"hint": "Controls how energetic the collision looks.",
+"className": "w-full"
+}
+},
+{
+"type": "Grid",
+"props": {
+"cols": 1,
+"sm": 2,
+"gap": "sm"
+},
+"children": [
+{
+"type": "Button",
+"props": {
+"label": "Play or pause",
+"onClick": {
+"action": "togglePlay"
+},
+"variant": "primary",
+"className": "w-full"
+}
+},
+{
+"type": "Button",
+"props": {
+"label": "Reset",
+"onClick": {
+"action": "resetSimulation"
+},
+"variant": "secondary",
+"className": "w-full"
+}
+}
+]
+},
+{
+"type": "Alert",
+"props": {
+"className": "border-white/10 bg-slate-950/70"
+},
+"children": [
+{
+"type": "AlertTitle",
+"props": {
+"content": "{{gravityStrengthLabel}}",
+"className": "text-slate-100"
+}
+},
+{
+"type": "AlertDescription",
+"props": {
+"content": "This setting is about {{earthPercent}}% of Earth's gravity.",
+"className": "text-slate-300"
+}
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "SectionCard",
+"props": {
+"badge": "Simulation",
+"title": "See gravitational force in motion",
+"description": "The objects below fall under the selected gravity, so the visual behavior changes as the force changes.",
+"className": "border-white/10 bg-slate-900/70 lg:col-span-2"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "lg",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "DropSimulation",
+"props": {
+"gravity": {
+"expr": "activeGravity"
+},
+"height": {
+"expr": "dropHeight"
+},
+"bounce": {
+"expr": "bounce"
+},
+"play": {
+"expr": "play"
+},
+"resetKey": {
+"expr": "resetKey"
+},
+"objects": [
+{
+"label": "Rubber ball",
+"className": "bg-sky-400",
+"x": 18,
+"size": 54,
+"shape": "circle",
+"bounce": {
+"expr": "bounce"
+}
+},
+{
+"label": "Metal block",
+"className": "bg-slate-400",
+"x": 50,
+"size": 48,
+"shape": "square",
+"bounceMultiplier": 0.65
+},
+{
+"label": "Tennis ball",
+"className": "bg-lime-400",
+"x": 82,
+"size": 46,
+"shape": "circle",
+"bounceMultiplier": 0.9
+}
+],
+"className": "w-full rounded-2xl border border-white/10 bg-slate-950"
+}
+},
+{
+"type": "MetricGrid",
+"props": {
+"items": [
+{
+"label": "Current gravity",
+"value": "{{round(activeGravity * 100) / 100}} m/s²",
+"description": "Acceleration caused by gravity"
+},
+{
+"label": "Estimated fall time",
+"value": "{{round(fallTime * 100) / 100}} s",
+"description": "From the current drop height"
+},
+{
+"label": "Estimated impact speed",
+"value": "{{round(impactSpeed * 100) / 100}} m/s",
+"description": "Just before touching the floor"
+}
+],
+"cols": 1,
+"md": 3,
+"gap": "md"
+}
+}
+]
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "Section",
+"props": {
+"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
+},
+"children": [
+{
+"type": "SectionCard",
+"props": {
+"badge": "Planet comparison",
+"title": "How gravity changes across worlds",
+"description": "The same object behaves differently because the gravitational acceleration is different on each world.",
+"className": "border-white/10 bg-slate-900/70"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "lg",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "DataTable",
+"props": {
+"columns": [
+{
+"key": "planet",
+"label": "Planet"
+},
+{
+"key": "gravity",
+"label": "Gravity"
+},
+{
+"key": "effect",
+"label": "What it feels like"
+}
+],
+"rows": {
+"expr": "comparisonRows"
+},
+"className": "w-full"
+}
+},
+{
+"type": "P",
+"props": {
+"content": "A higher m/s² value means stronger pull and quicker acceleration. A lower value means slower falling and a more floaty experience.",
+"className": "text-sm leading-7 text-slate-300"
+}
+}
+]
+}
+]
+}
+]
+},
+{
+"type": "Section",
+"props": {
+"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
+},
+"children": [
+{
+"type": "Grid",
+"props": {
+"cols": 1,
+"md": 3,
+"gap": "lg"
+},
+"children": [
+{
+"type": "InfoCard",
+"props": {
+"title": "Key takeaway",
+"description": "Gravity is a force that pulls masses together, and near a planet it causes falling motion.",
+"className": "border border-white/10 bg-slate-900/70"
+}
+},
+{
+"type": "InfoCard",
+"props": {
+"title": "What the number means",
+"description": "The gravity value in m/s² tells you how much speed is added every second during free fall.",
+"className": "border border-white/10 bg-slate-900/70"
+}
+},
+{
+"type": "InfoCard",
+"props": {
+"title": "Why simulations help",
+"description": "A live scene makes the invisible force easier to understand because you can connect the number directly to motion.",
+"className": "border border-white/10 bg-slate-900/70"
+}
+}
+]
+}
+]
+},
+{
+"type": "Section",
+"props": {
+"className": "border-t border-white/10 bg-slate-900/40"
+},
+"children": [
+{
+"type": "Div",
+"props": {
+"className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+},
+"children": [
+{
+"type": "Grid",
+"props": {
+"cols": 1,
+"lg": 2,
+"gap": "lg"
+},
+"children": [
+{
+"type": "SectionCard",
+"props": {
+"badge": "Learning notes",
+"title": "Concepts to remember",
+"description": "These points help connect the formula ideas to the motion you see.",
+"className": "border-white/10 bg-slate-900/70"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "md",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "FAQList",
+"props": {
+"items": {
+"expr": "learningPoints"
+},
+"cols": 1,
+"gap": "md"
+}
+}
+]
+}
+]
+},
+{
+"type": "SectionCard",
+"props": {
+"badge": "FAQ",
+"title": "Common questions",
+"description": "Short answers to doubts learners often have about gravity.",
+"className": "border-white/10 bg-slate-900/70"
+},
+"children": [
+{
+"type": "Stack",
+"props": {
+"gap": "md",
+"className": "p-6 pt-0"
+},
+"children": [
+{
+"type": "FAQList",
+"props": {
+"items": {
+"expr": "faqItems"
+},
+"cols": 1,
+"gap": "md"
+}
+}
+]
+}
+]
+}
+]
+}
+]
+}
+]
+}
+]
+}
 }

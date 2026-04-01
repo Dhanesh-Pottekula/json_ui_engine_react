@@ -1,7 +1,12 @@
-Generate a valid JSON website schema for this UI runtime.
+Generate a valid schema string for this UI runtime.
 
 Rules:
-- Output JSON only
+- Output one minified JSON string only
+- Do not output a JSON object directly
+- Do not output JavaScript code, markdown fences, comments, or explanations
+- The output must be a valid string that can be used like:
+  - `export const schemaString = "..."` and parsed with `JSON.parse(schemaString)`
+- The output must start and end with double quotes
 - Use full property names, not aliases
 - Use only these top-level keys: `state`, `derived`, `actions`, `ui`
 - Use Tailwind utility classes in a plain literal `className` string
@@ -13,7 +18,17 @@ Rules:
 - Build a real responsive website, not a bare demo block
 - Use `className` heavily for layout with `flex`, `grid`, `gap`, `space-y`, `max-w-*`, `mx-auto`, and responsive breakpoints
 
-Schema shape:
+Output checklist before you answer:
+- Return one valid minified JSON string only
+- Make sure the string parses into one valid schema object
+- Make sure every component name and prop is listed in this prompt
+- Make sure every expression follows the expression rules below
+- Make sure every repeated section uses reusable components when possible
+- Make sure the page looks intentionally designed, responsive, and complete
+- If the page needs interactivity, include meaningful `state`, `derived`, and `actions`
+- If the page does not need interactivity, keep `actions` empty instead of inventing behavior
+
+Schema shape after parsing the string:
 ```json
 {
   "state": {},
@@ -23,7 +38,7 @@ Schema shape:
 }
 ```
 
-Node shape:
+Node shape inside the parsed schema:
 ```json
 {
   "type": "ComponentName",
@@ -53,6 +68,9 @@ Expression rules:
 - Expressions are plain strings
 - `visibleWhen` must be a string, not an object
 - `derived.someKey` must be a string or `{ "expr": "..." }`
+- `derived` is only for single computed values, never arrays or objects
+- Do not put metric lists, FAQ items, table rows, card lists, or other reusable UI arrays inside `derived`
+- If you need reusable arrays or objects for the UI, put them in `state` or directly in component props
 - Allowed syntax: numbers, strings, `true`/`false`/`null`, `+ - * / % **`, comparisons, `&&`, `||`, `!`, ternary, dot access, direct helper calls
 - Allowed scope: state keys directly, `state.*`, `derived.*`, `runtime.*`, `item`, `i`, and helper names
 - Dot paths are supported in state updates, for example `profile.name`
@@ -77,6 +95,19 @@ Allowed components:
   - use for a generic layout wrapper or free-form block
   - usually used with `children` for grids, flex rows, spacing groups, backgrounds, or positioned visual layers
   - optional props: `content`, `className`
+- `Stack`
+  - use for a vertical layout wrapper instead of repeating `Div` with `flex flex-col` classes
+  - use for section body flow, form stacks, text groups, and action groups
+  - optional props: `gap`, `align`, `justify`, `content`, `className`
+  - `gap`: `none`, `xs`, `sm`, `md`, `lg`, `xl`
+  - `align`: `start`, `center`, `end`, `stretch`
+  - `justify`: `start`, `center`, `end`, `between`
+- `Grid`
+  - use for a responsive grid instead of manually writing repeated grid column classes
+  - use for card grids, feature grids, stat grids, and two-column section layouts
+  - optional props: `cols`, `sm`, `md`, `lg`, `xl`, `gap`, `content`, `className`
+  - `cols`, `sm`, `md`, `lg`, `xl`: numbers from `1` to `6`
+  - `gap`: `none`, `xs`, `sm`, `md`, `lg`, `xl`
 - `Section`
   - use for a major page section or grouped content block
   - usually used with `children` for large page bands such as hero, features, FAQ, or footer
@@ -142,6 +173,62 @@ Allowed components:
   - `shape` may be `circle` or `square`
   - `bounce` overrides the final bounce amount for that object
   - `bounceMultiplier` multiplies the shared `bounce` prop for that object
+- `BarChart`
+  - use for comparing categories or comparing a few series across periods
+  - best for sales by month, revenue by team, signups by channel, or category comparisons
+  - required props: `data`, `series`
+  - optional props: `labelKey`, `maxPoints`, `height`, `className`
+  - `data` is an array of row objects
+  - `series` is an array like:
+```json
+[
+  { "key": "revenue", "label": "Revenue", "className": "fill-sky-500", "swatchClassName": "bg-sky-500" }
+]
+```
+  - `labelKey` points to the x-axis label field in each row
+- `LineChart`
+  - use for trends over time or ordered sequences
+  - best for daily traffic, monthly growth, retention, or moving trends
+  - required props: `data`, `series`
+  - optional props: `labelKey`, `maxPoints`, `height`, `showDots`, `className`
+  - `series` is an array like:
+```json
+[
+  { "key": "users", "label": "Users", "className": "stroke-sky-500", "swatchClassName": "bg-sky-500" }
+]
+```
+- `AreaChart`
+  - use for trends where magnitude should feel more visible than a plain line
+  - best for traffic volume, revenue trend, or cumulative growth
+  - required props: `data`, `series`
+  - optional props: `labelKey`, `maxPoints`, `height`, `className`
+  - each series object may include:
+    - `key`
+    - `label`
+    - `className` for the line stroke
+    - `fillClassName` for the area fill
+    - `swatchClassName` for the legend dot
+- `PieChart`
+  - use for part-to-whole breakdowns
+  - best for traffic source share, budget allocation, or subscription mix
+  - use only when there are a small number of slices, usually 3 to 6
+  - required props: `data`
+  - optional props: `labelKey`, `valueKey`, `variant`, `centerLabel`, `centerValue`, `className`
+  - `variant`: `pie`, `donut`
+  - `data` is an array like:
+```json
+[
+  { "label": "Paid", "value": 42, "className": "fill-sky-500", "swatchClassName": "bg-sky-500" }
+]
+```
+- `Hero`
+  - use for a top page hero section instead of manually composing a badge, heading, description, and CTA row every time
+  - best for landing pages, lesson intros, product intros, and dashboard hero banners
+  - may also contain extra `children` below the main text and actions
+  - optional props: `badge`, `badgeVariant`, `title`, `description`, `primaryActionLabel`, `primaryAction`, `secondaryActionLabel`, `secondaryAction`, `primaryActionDisabled`, `secondaryActionDisabled`, `align`, `className`
+  - `badgeVariant`: `default`, `secondary`, `outline`, `success`
+  - `primaryAction` and `secondaryAction` should usually be action objects like `{ "action": "start" }`
+  - `align`: `left`, `center`
 - `SectionCard`
   - use for a full content section with an optional header and a body
   - this is a convenience wrapper for a repeated section pattern
@@ -152,11 +239,34 @@ Allowed components:
   - use for read-only summary numbers like revenue, score, gravity, time, count, or percentage
   - this component is self-contained and usually should not have children
   - optional props: `label`, `value`, `description`, `className`
+- `MetricGrid`
+  - use for a repeated group of metrics instead of writing many `StatCard` nodes manually
+  - best for KPI sections, summary rows, quick facts, and dashboards
+  - optional props: `items`, `cols`, `sm`, `md`, `lg`, `gap`, `className`
+  - `items` is an array of objects like:
+```json
+[
+  { "label": "Gravity", "value": "9.8 m/s²", "description": "Earth surface gravity" }
+]
+```
+  - each item may also include `className`
 - `InfoCard`
   - use for a small text card like a feature, tip, fact, or FAQ item
   - use for read-only explanation blocks
   - this component is self-contained and usually should not have children
   - optional props: `title`, `description`, `className`
+- `FAQList`
+  - use for repeated question-answer or title-description cards instead of manually writing many `InfoCard` nodes
+  - best for FAQ sections, learning tips, feature lists, or repeated explanation tiles
+  - optional props: `items`, `cols`, `sm`, `md`, `lg`, `gap`, `className`
+  - `items` is an array of objects like:
+```json
+[
+  { "question": "Why do objects fall?", "answer": "Gravity pulls them toward Earth." }
+]
+```
+  - item objects may also use `title` and `description` instead of `question` and `answer`
+  - each item may also include `className`
 - `DataTable`
   - use for standard structured data tables
   - use when all rows follow the same columns, such as comparisons, pricing, schedules, or facts
@@ -170,6 +280,7 @@ Allowed components:
 ]
 ```
   - the order of `columns` controls the visible column order
+  - each column may also include `headerClassName` and `cellClassName`
   - each row should provide values for those same `key` names
   - `rows` is an array like:
 ```json
@@ -283,7 +394,14 @@ Allowed components:
   - optional props: `content`, `className`
 
 Composition rules:
-- Prefer reusable high-level components like `SectionCard`, `StatCard`, `InfoCard`, and `DataTable` when they fit the page
+- Prefer reusable high-level components like `Stack`, `Grid`, `Hero`, `SectionCard`, `MetricGrid`, `StatCard`, `FAQList`, `InfoCard`, and `DataTable` when they fit the page
+- `Stack` and `Grid` are the main general layout shortcuts for reducing repeated layout classes in schema output
+- `Hero`, `MetricGrid`, and `FAQList` are the main token-saving pattern components for repeated website sections
+- Prefer chart components over manually drawing charts with primitive blocks
+- Use `BarChart` for category comparison
+- Use `LineChart` for trend lines
+- Use `AreaChart` for trend + volume emphasis
+- Use `PieChart` for part-to-whole views with few slices
 - `StatCard` and `InfoCard` are self-contained display components; do not use them as large layout wrappers
 - `SectionCard` is the better choice when you need a repeated section shell with body children
 - Use `Card` as the main section/layout wrapper when the UI fits normal shadcn/ui composition
@@ -306,12 +424,34 @@ Composition rules:
 - Use `DataTable` for ordinary tables instead of manually writing `TableHeader`, `TableBody`, `TableRow`, `TableHead`, and `TableCell` each time
 - It is valid to mix shadcn/ui components and primitive components in the same page
 
+Logic rules:
+- Only add `state`, `derived`, and `actions` that the page actually needs
+- Put editable values in `state`
+- Put computed read-only values in `derived`
+- Put reusable non-editable arrays and objects in `state` or directly in component props, not in `derived`
+- Use `validate` before submit, save, or apply actions when user input can be invalid
+- Use `run` and `condition` to build multi-step flows instead of inventing new action types
+- Prefer simple, readable formulas over clever or deeply nested expressions
+- When a value repeats in many places, compute it once in `derived` and reuse it
+- Do not put presentational values like long Tailwind class strings into `derived`
+- Use `visibleWhen` for conditional sections instead of trying to hide them with class names
+- Use `items` arrays with `MetricGrid`, `FAQList`, and `DataTable` instead of manually repeating many similar children
+- Use `each` only when a reusable component with `items` is not a better fit
+
 Recommended page structure:
-- Root `ui` should usually be a `Card` or `CardContent` with page-level spacing classes
+- Root `ui` should usually be a `Div`, `Section`, `Stack`, `Card`, or `CardContent` with page-level spacing classes
 - For landing pages and dashboards, prefer multiple major sections
 - Good common sections: hero, input/form area, metrics, feature grid, comparison area, FAQ/info area, CTA footer
 - Prefer grids of nested cards for stats and repeated panels
 - Keep headings and descriptions close to the section they describe
+
+Dashboard guidance:
+- A strong dashboard usually combines `MetricGrid`, one or more chart components, and `DataTable`
+- Start with KPI summary cards, then trend/comparison charts, then detailed tables or breakdowns
+- Use no more than one pie/donut chart in a section unless the request clearly needs more
+- Prefer `LineChart` or `AreaChart` for time-series dashboards
+- Prefer `BarChart` for ranked lists and side-by-side comparisons
+- Wrap each chart in `SectionCard` or `Card` with a clear title and short description
 
 Valid composition patterns:
 ```json
@@ -382,6 +522,19 @@ Action formats:
 - `set`
   - required: `values`
   - optional: `clearErrors`
+  - inside `values`, plain strings are literal strings, not expressions
+  - for computed assignments, always use `{ "expr": "..." }`
+  - example:
+```json
+{
+  "type": "set",
+  "values": {
+    "play": { "expr": "!play" },
+    "resetKey": { "expr": "resetKey + 1" },
+    "title": "Finished"
+  }
+}
+```
 - `validate`
   - required: `rules`
   - optional: `errorMessage`
@@ -422,5 +575,23 @@ Design requirements:
 - Make the result feel like a polished shadcn/ui + Tailwind website, not a raw JSON dump or plain form stack
 - Use nested cards, subtle borders, and spacing rhythm to create structure
 - Prefer clean sections over one giant card unless the request is intentionally simple
+- Choose a clear visual direction and keep it consistent across the whole page
+- Use concise but real content copy, not placeholder filler
+- Prefer a few strong sections with clear hierarchy over too many weak sections
+- When the user asks for an educational, product, or marketing page, include supporting sections such as examples, comparisons, key takeaways, or FAQ when they improve the page
+- Default visual direction: minimalistic Apple-inspired design
+- Apple-inspired design means:
+  - spacious layout with generous whitespace
+  - restrained premium palette using white, slate, zinc, black, and one soft accent color
+  - large confident headings with clean hierarchy
+  - subtle borders, soft shadows, and light glass or blur only when helpful
+  - very clean section structure with calm typography and minimal visual noise
+  - avoid loud gradients, heavy neon colors, clutter, or overly playful layouts unless explicitly requested
+  - prefer elegant simplicity, refined cards, and polished spacing over decorative complexity
+
+String output example:
+```text
+"{\"state\":{},\"derived\":{},\"actions\":{},\"ui\":{\"type\":\"Div\",\"props\":{\"className\":\"min-h-screen bg-white text-slate-950\"}}}"
+```
 
 Now generate a complete schema for: [describe the website here]
