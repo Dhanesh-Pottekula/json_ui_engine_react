@@ -1,956 +1,1265 @@
 {
-"state": {
-"selectedPreset": "earth",
-"gravity": 9.81,
-"customGravity": 9.81,
-"dropHeight": 18,
-"bounce": 0.58,
-"play": true,
-"resetKey": 0,
-"presetOptions": [
-{
-"label": "Moon",
-"value": "moon"
-},
-{
-"label": "Mars",
-"value": "mars"
-},
-{
-"label": "Earth",
-"value": "earth"
-},
-{
-"label": "Jupiter",
-"value": "jupiter"
-},
-{
-"label": "Custom",
-"value": "custom"
-}
-],
-"comparisonRows": [
-{
-"planet": {
-"content": "Moon",
-"className": "text-white"
-},
-"gravity": {
-"content": "1.62 m/s²",
-"className": "text-slate-300"
-},
-"effect": {
-"content": "Slow fall, floaty motion",
-"className": "text-slate-300"
-}
-},
-{
-"planet": {
-"content": "Mars",
-"className": "text-white"
-},
-"gravity": {
-"content": "3.71 m/s²",
-"className": "text-slate-300"
-},
-"effect": {
-"content": "Lighter than Earth",
-"className": "text-slate-300"
-}
-},
-{
-"planet": {
-"content": "Earth",
-"className": "text-white"
-},
-"gravity": {
-"content": "9.81 m/s²",
-"className": "text-slate-300"
-},
-"effect": {
-"content": "Familiar everyday motion",
-"className": "text-slate-300"
-}
-},
-{
-"planet": {
-"content": "Jupiter",
-"className": "text-white"
-},
-"gravity": {
-"content": "24.79 m/s²",
-"className": "text-slate-300"
-},
-"effect": {
-"content": "Fast and heavy pull",
-"className": "text-slate-300"
-}
-}
-],
-"conceptCards": [
-{
-"title": "What is gravitational force?",
-"description": "Gravitational force is the attractive force between masses. Bigger masses create stronger pull, and distance weakens that pull."
-},
-{
-"title": "Why do things fall?",
-"description": "Near a planet, gravity pulls objects toward the center of that planet. That downward pull creates acceleration."
-},
-{
-"title": "What changes in this simulation?",
-"description": "When gravity increases, the object speeds up faster, reaches the ground sooner, and hits with greater speed."
-}
-],
-"learningPoints": [
-{
-"question": "Mass vs weight",
-"answer": "Mass is how much matter an object has. Weight is the force of gravity acting on that mass, so weight changes from planet to planet."
-},
-{
-"question": "Acceleration due to gravity",
-"answer": "The value shown in m/s² tells you how much speed an object gains each second while falling."
-},
-{
-"question": "Bounce in the simulation",
-"answer": "Bounce is not gravity itself. It represents how much motion stays after a collision with the floor."
-}
-],
-"faqItems": [
-{
-"question": "Do heavier objects always fall faster?",
-"answer": "In ideal free fall without air resistance, objects accelerate at the same rate under the same gravity."
-},
-{
-"question": "Why is Jupiter gravity so high here?",
-"answer": "Jupiter is much more massive than Earth, so the gravitational pull near it is much stronger."
-},
-{
-"question": "Why does distance matter?",
-"answer": "The farther you are from a mass, the weaker the gravitational force becomes."
-},
-{
-"question": "Why can I enter custom gravity?",
-"answer": "It lets you imagine motion on fictional planets or compare different gravitational environments."
-}
-]
-},
-"derived": {
-"activeGravity": {
-"expr": "selectedPreset == 'custom' ? customGravity : gravity"
-},
-"fallTime": {
-"expr": "sqrt((2 * dropHeight) / max(activeGravity, 0.1))"
-},
-"impactSpeed": {
-"expr": "sqrt(2 * activeGravity * dropHeight)"
-},
-"earthPercent": {
-"expr": "round((activeGravity / 9.81) * 100)"
-},
-"gravityStrengthLabel": {
-"expr": "activeGravity < 3 ? 'Low gravity' : activeGravity < 12 ? 'Medium gravity' : 'High gravity'"
-},
-"weightOfTenKg": {
-"expr": "round(10 * activeGravity * 100) / 100"
-}
-},
-"actions": {
-"applyPreset": [
-{
-"type": "condition",
-"test": "selectedPreset == 'moon'",
-"then": [
-{
-"type": "set",
-"values": {
-"gravity": 1.62,
-"resetKey": {
-"expr": "resetKey + 1"
-}
-}
-}
-],
-"else": [
-{
-"type": "condition",
-"test": "selectedPreset == 'mars'",
-"then": [
-{
-"type": "set",
-"values": {
-"gravity": 3.71,
-"resetKey": {
-"expr": "resetKey + 1"
-}
-}
-}
-],
-"else": [
-{
-"type": "condition",
-"test": "selectedPreset == 'earth'",
-"then": [
-{
-"type": "set",
-"values": {
-"gravity": 9.81,
-"resetKey": {
-"expr": "resetKey + 1"
-}
-}
-}
-],
-"else": [
-{
-"type": "condition",
-"test": "selectedPreset == 'jupiter'",
-"then": [
-{
-"type": "set",
-"values": {
-"gravity": 24.79,
-"resetKey": {
-"expr": "resetKey + 1"
-}
-}
-}
-],
-"else": [
-{
-"type": "condition",
-"test": "selectedPreset == 'custom'",
-"then": [
-{
-"type": "run",
-"action": "applyCustomGravity"
-}
-]
-}
-]
-}
-]
-}
-]
-}
-]
-}
-],
-"applyCustomGravity": [
-{
-"type": "validate",
-"rules": [
-{
-"field": "customGravity",
-"required": true,
-"message": "Gravity is required"
-},
-{
-"field": "customGravity",
-"test": "value > 0",
-"message": "Gravity must be greater than 0"
-}
-]
-},
-{
-"type": "condition",
-"test": "!hasErrors(runtime.errors)",
-"then": [
-{
-"type": "set",
-"values": {
-"gravity": {
-"expr": "customGravity"
-},
-"resetKey": {
-"expr": "resetKey + 1"
-}
-}
-}
-]
-}
-],
-"togglePlay": [
-{
-"type": "set",
-"values": {
-"play": {
-"expr": "!play"
-}
-}
-}
-],
-"resetSimulation": [
-{
-"type": "set",
-"values": {
-"resetKey": {
-"expr": "resetKey + 1"
-},
-"play": true
-}
-}
-]
-},
-"ui": {
-"type": "Div",
-"props": {
-"className": "min-h-screen bg-slate-950 text-slate-50"
-},
-"children": [
-{
-"type": "Section",
-"props": {
-"className": "border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950"
-},
-"children": [
-{
-"type": "Div",
-"props": {
-"className": "mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20"
-},
-"children": [
-{
-"type": "Hero",
-"props": {
-"badge": "Physics lesson",
-"badgeVariant": "secondary",
-"title": "Understand gravitational force with a live simulation",
-"description": "Learn what gravity is, why objects fall, and how stronger or weaker gravity changes motion. Use the playground to compare planets and see the force in action.",
-"primaryActionLabel": "Reset simulation",
-"primaryAction": {
-"action": "resetSimulation"
-},
-"secondaryActionLabel": "Play or pause",
-"secondaryAction": {
-"action": "togglePlay"
-},
-"align": "left",
-"className": "rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur sm:p-8"
-},
-"children": [
-{
-"type": "MetricGrid",
-"props": {
-"items": [
-{
-"label": "Gravity",
-"value": "{{round(activeGravity * 100) / 100}} m/s²",
-"description": "Current gravitational acceleration"
-},
-{
-"label": "Fall time",
-"value": "{{round(fallTime * 100) / 100}} s",
-"description": "Time to reach the ground"
-},
-{
-"label": "Impact speed",
-"value": "{{round(impactSpeed * 100) / 100}} m/s",
-"description": "Speed just before impact"
-},
-{
-"label": "10 kg weight",
-"value": "{{weightOfTenKg}} N",
-"description": "Force on a 10 kg object here"
-}
-],
-"cols": 1,
-"sm": 2,
-"lg": 4,
-"gap": "md",
-"className": "mt-8"
-}
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Section",
-"props": {
-"className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16"
-},
-"children": [
-{
-"type": "Grid",
-"props": {
-"cols": 1,
-"lg": 2,
-"gap": "lg",
-"className": "items-start"
-},
-"children": [
-{
-"type": "SectionCard",
-"props": {
-"badge": "Core idea",
-"title": "What gravitational force means",
-"description": "Gravity is a force of attraction between masses. Near a planet, it pulls objects downward and gives them acceleration.",
-"className": "border-white/10 bg-slate-900/70"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "md",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "FAQList",
-"props": {
-"items": {
-"expr": "conceptCards"
-},
-"cols": 1,
-"gap": "md",
-"className": "mt-2"
-}
-},
-{
-"type": "Alert",
-"props": {
-"className": "border-white/10 bg-slate-950/70"
-},
-"children": [
-{
-"type": "AlertTitle",
-"props": {
-"content": "Simple rule",
-"className": "text-slate-100"
-}
-},
-{
-"type": "AlertDescription",
-"props": {
-"content": "Stronger gravity means more acceleration every second. That is why objects fall faster on worlds with larger gravity values.",
-"className": "text-slate-300"
-}
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "SectionCard",
-"props": {
-"badge": "Key comparison",
-"title": "Mass, weight, and acceleration",
-"description": "These ideas are related, but they are not the same thing.",
-"className": "border-white/10 bg-slate-900/70"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "md",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "InfoCard",
-"props": {
-"title": "Mass",
-"description": "Mass measures how much matter an object has. It does not change when you move from one planet to another.",
-"className": "border border-white/10 bg-slate-950/60"
-}
-},
-{
-"type": "InfoCard",
-"props": {
-"title": "Weight",
-"description": "Weight is gravitational force acting on mass. For a 10 kg object here, the weight is {{weightOfTenKg}} newtons.",
-"className": "border border-white/10 bg-slate-950/60"
-}
-},
-{
-"type": "InfoCard",
-"props": {
-"title": "Acceleration",
-"description": "The current gravity of {{round(activeGravity * 100) / 100}} m/s² means the object's speed increases by about that much every second while it falls.",
-"className": "border border-white/10 bg-slate-950/60"
-}
-}
-]
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Section",
-"props": {
-"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
-},
-"children": [
-{
-"type": "Grid",
-"props": {
-"cols": 1,
-"lg": 3,
-"gap": "lg",
-"className": "items-start"
-},
-"children": [
-{
-"type": "SectionCard",
-"props": {
-"badge": "Controls",
-"title": "Experiment with gravity",
-"description": "Change the environment and immediately see how the motion changes.",
-"className": "border-white/10 bg-slate-900/70 lg:col-span-1"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "md",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "Select",
-"props": {
-"label": "Planet preset",
-"options": {
-"expr": "presetOptions"
-},
-"value": {
-"bind": "selectedPreset"
-},
-"hint": "Choose a planet or switch to custom gravity.",
-"className": "w-full"
-}
-},
-{
-"type": "Button",
-"props": {
-"label": "Apply preset",
-"onClick": {
-"action": "applyPreset"
-},
-"variant": "primary",
-"className": "w-full"
-}
-},
-{
-"type": "Input",
-"props": {
-"label": "Custom gravity",
-"type": "number",
-"value": {
-"bind": "customGravity",
-"transform": "+input"
-},
-"min": 0.1,
-"max": 50,
-"step": 0.01,
-"hint": "Enter any positive value in m/s².",
-"error": {
-"expr": "runtime.errors.customGravity"
-},
-"className": "w-full"
-},
-"visibleWhen": "selectedPreset == 'custom'"
-},
-{
-"type": "Button",
-"props": {
-"label": "Use custom gravity",
-"onClick": {
-"action": "applyCustomGravity"
-},
-"variant": "secondary",
-"className": "w-full"
-},
-"visibleWhen": "selectedPreset == 'custom'"
-},
-{
-"type": "Separator",
-"props": {
-"orientation": "horizontal",
-"className": "bg-white/10"
-}
-},
-{
-"type": "Slider",
-"props": {
-"label": "Drop height",
-"value": {
-"bind": "dropHeight",
-"transform": "+input"
-},
-"min": 5,
-"max": 40,
-"step": 1,
-"suffix": " m",
-"hint": "Higher drops take longer and end with greater speed.",
-"className": "w-full"
-}
-},
-{
-"type": "Slider",
-"props": {
-"label": "Bounce",
-"value": {
-"bind": "bounce",
-"transform": "+input"
-},
-"min": 0,
-"max": 1,
-"step": 0.05,
-"suffix": "",
-"hint": "Controls how energetic the collision looks.",
-"className": "w-full"
-}
-},
-{
-"type": "Grid",
-"props": {
-"cols": 1,
-"sm": 2,
-"gap": "sm"
-},
-"children": [
-{
-"type": "Button",
-"props": {
-"label": "Play or pause",
-"onClick": {
-"action": "togglePlay"
-},
-"variant": "primary",
-"className": "w-full"
-}
-},
-{
-"type": "Button",
-"props": {
-"label": "Reset",
-"onClick": {
-"action": "resetSimulation"
-},
-"variant": "secondary",
-"className": "w-full"
-}
-}
-]
-},
-{
-"type": "Alert",
-"props": {
-"className": "border-white/10 bg-slate-950/70"
-},
-"children": [
-{
-"type": "AlertTitle",
-"props": {
-"content": "{{gravityStrengthLabel}}",
-"className": "text-slate-100"
-}
-},
-{
-"type": "AlertDescription",
-"props": {
-"content": "This setting is about {{earthPercent}}% of Earth's gravity.",
-"className": "text-slate-300"
-}
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "SectionCard",
-"props": {
-"badge": "Simulation",
-"title": "See gravitational force in motion",
-"description": "The objects below fall under the selected gravity, so the visual behavior changes as the force changes.",
-"className": "border-white/10 bg-slate-900/70 lg:col-span-2"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "lg",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "DropSimulation",
-"props": {
-"gravity": {
-"expr": "activeGravity"
-},
-"height": {
-"expr": "dropHeight"
-},
-"bounce": {
-"expr": "bounce"
-},
-"play": {
-"expr": "play"
-},
-"resetKey": {
-"expr": "resetKey"
-},
-"objects": [
-{
-"label": "Rubber ball",
-"className": "bg-sky-400",
-"x": 18,
-"size": 54,
-"shape": "circle",
-"bounce": {
-"expr": "bounce"
-}
-},
-{
-"label": "Metal block",
-"className": "bg-slate-400",
-"x": 50,
-"size": 48,
-"shape": "square",
-"bounceMultiplier": 0.65
-},
-{
-"label": "Tennis ball",
-"className": "bg-lime-400",
-"x": 82,
-"size": 46,
-"shape": "circle",
-"bounceMultiplier": 0.9
-}
-],
-"className": "w-full rounded-2xl border border-white/10 bg-slate-950"
-}
-},
-{
-"type": "MetricGrid",
-"props": {
-"items": [
-{
-"label": "Current gravity",
-"value": "{{round(activeGravity * 100) / 100}} m/s²",
-"description": "Acceleration caused by gravity"
-},
-{
-"label": "Estimated fall time",
-"value": "{{round(fallTime * 100) / 100}} s",
-"description": "From the current drop height"
-},
-{
-"label": "Estimated impact speed",
-"value": "{{round(impactSpeed * 100) / 100}} m/s",
-"description": "Just before touching the floor"
-}
-],
-"cols": 1,
-"md": 3,
-"gap": "md"
-}
-}
-]
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Section",
-"props": {
-"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
-},
-"children": [
-{
-"type": "SectionCard",
-"props": {
-"badge": "Planet comparison",
-"title": "How gravity changes across worlds",
-"description": "The same object behaves differently because the gravitational acceleration is different on each world.",
-"className": "border-white/10 bg-slate-900/70"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "lg",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "DataTable",
-"props": {
-"columns": [
-{
-"key": "planet",
-"label": "Planet"
-},
-{
-"key": "gravity",
-"label": "Gravity"
-},
-{
-"key": "effect",
-"label": "What it feels like"
-}
-],
-"rows": {
-"expr": "comparisonRows"
-},
-"className": "w-full"
-}
-},
-{
-"type": "P",
-"props": {
-"content": "A higher m/s² value means stronger pull and quicker acceleration. A lower value means slower falling and a more floaty experience.",
-"className": "text-sm leading-7 text-slate-300"
-}
-}
-]
-}
-]
-}
-]
-},
-{
-"type": "Section",
-"props": {
-"className": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8"
-},
-"children": [
-{
-"type": "Grid",
-"props": {
-"cols": 1,
-"md": 3,
-"gap": "lg"
-},
-"children": [
-{
-"type": "InfoCard",
-"props": {
-"title": "Key takeaway",
-"description": "Gravity is a force that pulls masses together, and near a planet it causes falling motion.",
-"className": "border border-white/10 bg-slate-900/70"
-}
-},
-{
-"type": "InfoCard",
-"props": {
-"title": "What the number means",
-"description": "The gravity value in m/s² tells you how much speed is added every second during free fall.",
-"className": "border border-white/10 bg-slate-900/70"
-}
-},
-{
-"type": "InfoCard",
-"props": {
-"title": "Why simulations help",
-"description": "A live scene makes the invisible force easier to understand because you can connect the number directly to motion.",
-"className": "border border-white/10 bg-slate-900/70"
-}
-}
-]
-}
-]
-},
-{
-"type": "Section",
-"props": {
-"className": "border-t border-white/10 bg-slate-900/40"
-},
-"children": [
-{
-"type": "Div",
-"props": {
-"className": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
-},
-"children": [
-{
-"type": "Grid",
-"props": {
-"cols": 1,
-"lg": 2,
-"gap": "lg"
-},
-"children": [
-{
-"type": "SectionCard",
-"props": {
-"badge": "Learning notes",
-"title": "Concepts to remember",
-"description": "These points help connect the formula ideas to the motion you see.",
-"className": "border-white/10 bg-slate-900/70"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "md",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "FAQList",
-"props": {
-"items": {
-"expr": "learningPoints"
-},
-"cols": 1,
-"gap": "md"
-}
-}
-]
-}
-]
-},
-{
-"type": "SectionCard",
-"props": {
-"badge": "FAQ",
-"title": "Common questions",
-"description": "Short answers to doubts learners often have about gravity.",
-"className": "border-white/10 bg-slate-900/70"
-},
-"children": [
-{
-"type": "Stack",
-"props": {
-"gap": "md",
-"className": "p-6 pt-0"
-},
-"children": [
-{
-"type": "FAQList",
-"props": {
-"items": {
-"expr": "faqItems"
-},
-"cols": 1,
-"gap": "md"
-}
-}
-]
-}
-]
-}
-]
-}
-]
-}
-]
-}
-]
-}
+  "state": {
+    "workoutDate": "2026-04-01",
+    "planName": "Upper Body Power",
+    "split": "push",
+    "gymLocation": "Main Gym",
+    "durationMinutes": 75,
+    "bodyWeight": 72,
+    "sleepHours": 7.5,
+    "waterLiters": 3,
+    "energyLevel": 7,
+    "warmupDone": true,
+    "cooldownDone": false,
+    "notes": "",
+    "weeklyGoal": 4,
+    "workoutsDoneThisWeek": 2,
+    "workoutLogged": false,
+    "lastLoggedVolume": 0,
+    "splitOptions": [
+      {
+        "label": "Push",
+        "value": "push"
+      },
+      {
+        "label": "Pull",
+        "value": "pull"
+      },
+      {
+        "label": "Legs",
+        "value": "legs"
+      },
+      {
+        "label": "Upper",
+        "value": "upper"
+      },
+      {
+        "label": "Lower",
+        "value": "lower"
+      },
+      {
+        "label": "Full Body",
+        "value": "full"
+      }
+    ],
+    "exerciseOneName": "Bench Press",
+    "exerciseOneSets": 4,
+    "exerciseOneReps": 8,
+    "exerciseOneWeight": 60,
+    "exerciseOneCompleted": true,
+    "exerciseTwoName": "Incline Dumbbell Press",
+    "exerciseTwoSets": 3,
+    "exerciseTwoReps": 10,
+    "exerciseTwoWeight": 24,
+    "exerciseTwoCompleted": true,
+    "exerciseThreeName": "Overhead Press",
+    "exerciseThreeSets": 4,
+    "exerciseThreeReps": 6,
+    "exerciseThreeWeight": 35,
+    "exerciseThreeCompleted": false,
+    "exerciseFourName": "Cable Lateral Raise",
+    "exerciseFourSets": 3,
+    "exerciseFourReps": 15,
+    "exerciseFourWeight": 12,
+    "exerciseFourCompleted": false
+  },
+  "derived": {
+    "exerciseOneVolume": {
+      "expr": "exerciseOneSets * exerciseOneReps * exerciseOneWeight"
+    },
+    "exerciseTwoVolume": {
+      "expr": "exerciseTwoSets * exerciseTwoReps * exerciseTwoWeight"
+    },
+    "exerciseThreeVolume": {
+      "expr": "exerciseThreeSets * exerciseThreeReps * exerciseThreeWeight"
+    },
+    "exerciseFourVolume": {
+      "expr": "exerciseFourSets * exerciseFourReps * exerciseFourWeight"
+    },
+    "totalVolume": {
+      "expr": "exerciseOneVolume + exerciseTwoVolume + exerciseThreeVolume + exerciseFourVolume"
+    },
+    "completedExercises": {
+      "expr": "(exerciseOneCompleted ? 1 : 0) + (exerciseTwoCompleted ? 1 : 0) + (exerciseThreeCompleted ? 1 : 0) + (exerciseFourCompleted ? 1 : 0)"
+    },
+    "completionPercent": {
+      "expr": "round((completedExercises / 4) * 100)"
+    },
+    "weeklyProgressPercent": {
+      "expr": "round((workoutsDoneThisWeek / max(weeklyGoal, 1)) * 100)"
+    },
+    "remainingWorkouts": {
+      "expr": "max(weeklyGoal - workoutsDoneThisWeek, 0)"
+    },
+    "readinessScore": {
+      "expr": "round(((sleepHours / 10) * 40) + ((waterLiters / 4) * 25) + ((energyLevel / 10) * 35))"
+    },
+    "readinessLabel": {
+      "expr": "readinessScore >= 80 ? 'Ready to push' : readinessScore >= 60 ? 'Solid session' : 'Recovery first'"
+    },
+    "estimatedLoadPerMinute": {
+      "expr": "round(totalVolume / max(durationMinutes, 1))"
+    }
+  },
+  "actions": {
+    "validateWorkout": [
+      {
+        "type": "validate",
+        "rules": [
+          {
+            "field": "workoutDate",
+            "required": true,
+            "message": "Workout date is required"
+          },
+          {
+            "field": "planName",
+            "required": true,
+            "message": "Workout name is required"
+          },
+          {
+            "field": "durationMinutes",
+            "test": "value > 0",
+            "message": "Duration must be greater than 0"
+          },
+          {
+            "field": "exerciseOneName",
+            "required": true,
+            "message": "At least one exercise is required"
+          }
+        ]
+      }
+    ],
+    "saveWorkout": [
+      {
+        "type": "run",
+        "action": "validateWorkout"
+      },
+      {
+        "type": "condition",
+        "test": "!hasErrors(runtime.errors) && !workoutLogged",
+        "then": [
+          {
+            "type": "set",
+            "values": {
+              "workoutLogged": true,
+              "workoutsDoneThisWeek": {
+                "expr": "workoutsDoneThisWeek + 1"
+              },
+              "lastLoggedVolume": {
+                "expr": "totalVolume"
+              }
+            }
+          },
+          {
+            "type": "alert",
+            "message": "Workout saved. Total volume: {{totalVolume}} kg reps. Completed exercises: {{completedExercises}}/4."
+          }
+        ],
+        "else": [
+          {
+            "type": "condition",
+            "test": "workoutLogged",
+            "then": [
+              {
+                "type": "alert",
+                "message": "This workout is already saved. Reset or edit it before saving again."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "toggleWorkoutLogged": [
+      {
+        "type": "set",
+        "values": {
+          "workoutLogged": {
+            "expr": "!workoutLogged"
+          }
+        }
+      }
+    ],
+    "resetWorkout": [
+      {
+        "type": "set",
+        "values": {
+          "workoutDate": "2026-04-01",
+          "planName": "Upper Body Power",
+          "split": "push",
+          "gymLocation": "Main Gym",
+          "durationMinutes": 75,
+          "bodyWeight": 72,
+          "sleepHours": 7.5,
+          "waterLiters": 3,
+          "energyLevel": 7,
+          "warmupDone": true,
+          "cooldownDone": false,
+          "notes": "",
+          "workoutLogged": false,
+          "exerciseOneName": "Bench Press",
+          "exerciseOneSets": 4,
+          "exerciseOneReps": 8,
+          "exerciseOneWeight": 60,
+          "exerciseOneCompleted": true,
+          "exerciseTwoName": "Incline Dumbbell Press",
+          "exerciseTwoSets": 3,
+          "exerciseTwoReps": 10,
+          "exerciseTwoWeight": 24,
+          "exerciseTwoCompleted": true,
+          "exerciseThreeName": "Overhead Press",
+          "exerciseThreeSets": 4,
+          "exerciseThreeReps": 6,
+          "exerciseThreeWeight": 35,
+          "exerciseThreeCompleted": false,
+          "exerciseFourName": "Cable Lateral Raise",
+          "exerciseFourSets": 3,
+          "exerciseFourReps": 15,
+          "exerciseFourWeight": 12,
+          "exerciseFourCompleted": false
+        },
+        "clearErrors": true
+      }
+    ]
+  },
+  "ui": {
+    "type": "Div",
+    "props": {
+      "className": "min-h-screen bg-zinc-100 text-zinc-950"
+    },
+    "children": [
+      {
+        "type": "Section",
+        "props": {
+          "className": "border-b border-zinc-200 bg-white"
+        },
+        "children": [
+          {
+            "type": "Div",
+            "props": {
+              "className": "mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12"
+            },
+            "children": [
+              {
+                "type": "Hero",
+                "props": {
+                  "badge": "Gym Tracker",
+                  "badgeVariant": "secondary",
+                  "title": "Track your session, volume, and weekly progress in one place",
+                  "description": "Log your workout details, update exercises, and use the dashboard to see how the session is going right now.",
+                  "primaryActionLabel": "Save workout",
+                  "primaryAction": {
+                    "action": "saveWorkout"
+                  },
+                  "primaryActionDisabled": {
+                    "expr": "workoutLogged"
+                  },
+                  "secondaryActionLabel": "Reset workout",
+                  "secondaryAction": {
+                    "action": "resetWorkout"
+                  },
+                  "align": "left",
+                  "className": "rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8"
+                },
+                "children": [
+                  {
+                    "type": "MetricGrid",
+                    "props": {
+                      "items": [
+                        {
+                          "label": "Total volume",
+                          "value": "{{totalVolume}}",
+                          "description": "kg reps this session"
+                        },
+                        {
+                          "label": "Completed",
+                          "value": "{{completedExercises}} / 4",
+                          "description": "exercises finished"
+                        },
+                        {
+                          "label": "Readiness",
+                          "value": "{{readinessScore}}%",
+                          "description": "{{readinessLabel}}"
+                        },
+                        {
+                          "label": "Weekly goal",
+                          "value": "{{workoutsDoneThisWeek}} / {{weeklyGoal}}",
+                          "description": "{{remainingWorkouts}} sessions left"
+                        }
+                      ],
+                      "cols": 1,
+                      "sm": 2,
+                      "lg": 4,
+                      "gap": "md",
+                      "className": "mt-6"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "props": {
+          "className": "mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+        },
+        "children": [
+          {
+            "type": "Grid",
+            "props": {
+              "cols": 1,
+              "lg": 2,
+              "gap": "lg",
+              "className": "items-start"
+            },
+            "children": [
+              {
+                "type": "Stack",
+                "props": {
+                  "gap": "lg"
+                },
+                "children": [
+                  {
+                    "type": "SectionCard",
+                    "props": {
+                      "badge": "Session setup",
+                      "title": "Workout details",
+                      "description": "Update the basics before you start logging exercises.",
+                      "className": "border-zinc-200 bg-white"
+                    },
+                    "children": [
+                      {
+                        "type": "Grid",
+                        "props": {
+                          "cols": 1,
+                          "md": 2,
+                          "gap": "md"
+                        },
+                        "children": [
+                          {
+                            "type": "Input",
+                            "props": {
+                              "label": "Workout date",
+                              "value": {
+                                "bind": "workoutDate"
+                              },
+                              "placeholder": "YYYY-MM-DD"
+                            }
+                          },
+                          {
+                            "type": "Input",
+                            "props": {
+                              "label": "Workout name",
+                              "value": {
+                                "bind": "planName"
+                              },
+                              "placeholder": "Push Day"
+                            }
+                          },
+                          {
+                            "type": "Select",
+                            "props": {
+                              "label": "Split",
+                              "options": {
+                                "expr": "splitOptions"
+                              },
+                              "value": {
+                                "bind": "split"
+                              }
+                            }
+                          },
+                          {
+                            "type": "Input",
+                            "props": {
+                              "label": "Gym location",
+                              "value": {
+                                "bind": "gymLocation"
+                              },
+                              "placeholder": "Home Gym or Main Gym"
+                            }
+                          },
+                          {
+                            "type": "Slider",
+                            "props": {
+                              "label": "Session duration",
+                              "value": {
+                                "bind": "durationMinutes"
+                              },
+                              "min": 20,
+                              "max": 180,
+                              "step": 5,
+                              "suffix": " min",
+                              "className": "md:col-span-2"
+                            }
+                          },
+                          {
+                            "type": "Textarea",
+                            "props": {
+                              "label": "Notes",
+                              "value": {
+                                "bind": "notes"
+                              },
+                              "rows": 4,
+                              "placeholder": "How did the session feel? Any cues or issues to remember?",
+                              "className": "md:col-span-2"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SectionCard",
+                    "props": {
+                      "badge": "Recovery",
+                      "title": "Body and recovery check-in",
+                      "description": "Track recovery markers that affect performance.",
+                      "className": "border-zinc-200 bg-white"
+                    },
+                    "children": [
+                      {
+                        "type": "Stack",
+                        "props": {
+                          "gap": "md"
+                        },
+                        "children": [
+                          {
+                            "type": "Grid",
+                            "props": {
+                              "cols": 1,
+                              "md": 2,
+                              "gap": "md"
+                            },
+                            "children": [
+                              {
+                                "type": "Input",
+                                "props": {
+                                  "label": "Body weight",
+                                  "type": "number",
+                                  "value": {
+                                    "bind": "bodyWeight",
+                                    "transform": "+input"
+                                  },
+                                  "min": 30,
+                                  "max": 200,
+                                  "step": 0.1,
+                                  "placeholder": "kg"
+                                }
+                              },
+                              {
+                                "type": "Input",
+                                "props": {
+                                  "label": "Sleep",
+                                  "type": "number",
+                                  "value": {
+                                    "bind": "sleepHours",
+                                    "transform": "+input"
+                                  },
+                                  "min": 0,
+                                  "max": 12,
+                                  "step": 0.5,
+                                  "placeholder": "hours"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Slider",
+                            "props": {
+                              "label": "Water intake",
+                              "value": {
+                                "bind": "waterLiters"
+                              },
+                              "min": 0,
+                              "max": 6,
+                              "step": 0.25,
+                              "suffix": " L"
+                            }
+                          },
+                          {
+                            "type": "Slider",
+                            "props": {
+                              "label": "Energy level",
+                              "value": {
+                                "bind": "energyLevel"
+                              },
+                              "min": 1,
+                              "max": 10,
+                              "step": 1,
+                              "suffix": "/10"
+                            }
+                          },
+                          {
+                            "type": "Grid",
+                            "props": {
+                              "cols": 1,
+                              "md": 2,
+                              "gap": "md"
+                            },
+                            "children": [
+                              {
+                                "type": "Checkbox",
+                                "props": {
+                                  "label": "Warm-up done",
+                                  "checked": {
+                                    "bind": "warmupDone"
+                                  },
+                                  "hint": "Track prep before the main work."
+                                }
+                              },
+                              {
+                                "type": "Switch",
+                                "props": {
+                                  "label": "Cooldown complete",
+                                  "checked": {
+                                    "bind": "cooldownDone"
+                                  },
+                                  "hint": "Toggle if you finished recovery work."
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "Progress",
+                            "props": {
+                              "label": "Readiness score",
+                              "value": {
+                                "expr": "readinessScore"
+                              },
+                              "max": 100,
+                              "hint": "{{readinessLabel}}"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SectionCard",
+                    "props": {
+                      "badge": "Exercises",
+                      "title": "Daily exercise tracker",
+                      "description": "Update sets, reps, weight, and mark each exercise complete.",
+                      "className": "border-zinc-200 bg-white"
+                    },
+                    "children": [
+                      {
+                        "type": "Accordion",
+                        "props": {
+                          "type": "multiple",
+                          "defaultValue": [
+                            "exercise-one",
+                            "exercise-two"
+                          ]
+                        },
+                        "children": [
+                          {
+                            "type": "AccordionItem",
+                            "props": {
+                              "value": "exercise-one"
+                            },
+                            "children": [
+                              {
+                                "type": "AccordionTrigger",
+                                "props": {
+                                  "content": "{{exerciseOneName}}"
+                                }
+                              },
+                              {
+                                "type": "AccordionContent",
+                                "children": [
+                                  {
+                                    "type": "Grid",
+                                    "props": {
+                                      "cols": 1,
+                                      "md": 2,
+                                      "gap": "md"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Exercise",
+                                          "value": {
+                                            "bind": "exerciseOneName"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Checkbox",
+                                        "props": {
+                                          "label": "Completed",
+                                          "checked": {
+                                            "bind": "exerciseOneCompleted"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Sets",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseOneSets",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Reps",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseOneReps",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Weight",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseOneWeight",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 0.5,
+                                          "placeholder": "kg",
+                                          "className": "md:col-span-2"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "AccordionItem",
+                            "props": {
+                              "value": "exercise-two"
+                            },
+                            "children": [
+                              {
+                                "type": "AccordionTrigger",
+                                "props": {
+                                  "content": "{{exerciseTwoName}}"
+                                }
+                              },
+                              {
+                                "type": "AccordionContent",
+                                "children": [
+                                  {
+                                    "type": "Grid",
+                                    "props": {
+                                      "cols": 1,
+                                      "md": 2,
+                                      "gap": "md"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Exercise",
+                                          "value": {
+                                            "bind": "exerciseTwoName"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Checkbox",
+                                        "props": {
+                                          "label": "Completed",
+                                          "checked": {
+                                            "bind": "exerciseTwoCompleted"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Sets",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseTwoSets",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Reps",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseTwoReps",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Weight",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseTwoWeight",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 0.5,
+                                          "placeholder": "kg",
+                                          "className": "md:col-span-2"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "AccordionItem",
+                            "props": {
+                              "value": "exercise-three"
+                            },
+                            "children": [
+                              {
+                                "type": "AccordionTrigger",
+                                "props": {
+                                  "content": "{{exerciseThreeName}}"
+                                }
+                              },
+                              {
+                                "type": "AccordionContent",
+                                "children": [
+                                  {
+                                    "type": "Grid",
+                                    "props": {
+                                      "cols": 1,
+                                      "md": 2,
+                                      "gap": "md"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Exercise",
+                                          "value": {
+                                            "bind": "exerciseThreeName"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Checkbox",
+                                        "props": {
+                                          "label": "Completed",
+                                          "checked": {
+                                            "bind": "exerciseThreeCompleted"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Sets",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseThreeSets",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Reps",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseThreeReps",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Weight",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseThreeWeight",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 0.5,
+                                          "placeholder": "kg",
+                                          "className": "md:col-span-2"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "AccordionItem",
+                            "props": {
+                              "value": "exercise-four"
+                            },
+                            "children": [
+                              {
+                                "type": "AccordionTrigger",
+                                "props": {
+                                  "content": "{{exerciseFourName}}"
+                                }
+                              },
+                              {
+                                "type": "AccordionContent",
+                                "children": [
+                                  {
+                                    "type": "Grid",
+                                    "props": {
+                                      "cols": 1,
+                                      "md": 2,
+                                      "gap": "md"
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Exercise",
+                                          "value": {
+                                            "bind": "exerciseFourName"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Checkbox",
+                                        "props": {
+                                          "label": "Completed",
+                                          "checked": {
+                                            "bind": "exerciseFourCompleted"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Sets",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseFourSets",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Reps",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseFourReps",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 1
+                                        }
+                                      },
+                                      {
+                                        "type": "Input",
+                                        "props": {
+                                          "label": "Weight",
+                                          "type": "number",
+                                          "value": {
+                                            "bind": "exerciseFourWeight",
+                                            "transform": "+input"
+                                          },
+                                          "min": 0,
+                                          "step": 0.5,
+                                          "placeholder": "kg",
+                                          "className": "md:col-span-2"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "SectionCard",
+                "props": {
+                  "badge": "Dashboard",
+                  "title": "Session tracking",
+                  "description": "Use the tabs to view summary metrics, charts, and the exercise table.",
+                  "className": "border-zinc-200 bg-white"
+                },
+                "children": [
+                  {
+                    "type": "Tabs",
+                    "props": {
+                      "defaultValue": "overview",
+                      "className": "p-6 pt-0"
+                    },
+                    "children": [
+                      {
+                        "type": "TabsList",
+                        "props": {},
+                        "children": [
+                          {
+                            "type": "TabsTrigger",
+                            "props": {
+                              "value": "overview",
+                              "content": "Overview"
+                            }
+                          },
+                          {
+                            "type": "TabsTrigger",
+                            "props": {
+                              "value": "charts",
+                              "content": "Charts"
+                            }
+                          },
+                          {
+                            "type": "TabsTrigger",
+                            "props": {
+                              "value": "table",
+                              "content": "Table"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TabsContent",
+                        "props": {
+                          "value": "overview",
+                          "className": "mt-5"
+                        },
+                        "children": [
+                          {
+                            "type": "Stack",
+                            "props": {
+                              "gap": "lg"
+                            },
+                            "children": [
+                              {
+                                "type": "Progress",
+                                "props": {
+                                  "label": "Workout completion",
+                                  "value": {
+                                    "expr": "completionPercent"
+                                  },
+                                  "max": 100,
+                                  "hint": "{{completedExercises}} of 4 exercises marked done."
+                                }
+                              },
+                              {
+                                "type": "Progress",
+                                "props": {
+                                  "label": "Weekly goal progress",
+                                  "value": {
+                                    "expr": "weeklyProgressPercent"
+                                  },
+                                  "max": 100,
+                                  "hint": "{{remainingWorkouts}} sessions left this week."
+                                }
+                              },
+                              {
+                                "type": "MetricGrid",
+                                "props": {
+                                  "items": [
+                                    {
+                                      "label": "Load per minute",
+                                      "value": "{{estimatedLoadPerMinute}}",
+                                      "description": "Intensity proxy"
+                                    },
+                                    {
+                                      "label": "Last logged volume",
+                                      "value": "{{lastLoggedVolume}}",
+                                      "description": "Most recent save"
+                                    },
+                                    {
+                                      "label": "Warm-up",
+                                      "value": "{{warmupDone ? 'Done' : 'Pending'}}",
+                                      "description": "Preparation status"
+                                    },
+                                    {
+                                      "label": "Cooldown",
+                                      "value": "{{cooldownDone ? 'Done' : 'Pending'}}",
+                                      "description": "Recovery status"
+                                    }
+                                  ],
+                                  "cols": 1,
+                                  "md": 2,
+                                  "gap": "md"
+                                }
+                              },
+                              {
+                                "type": "Alert",
+                                "props": {
+                                  "className": "border-zinc-200 bg-zinc-50"
+                                },
+                                "children": [
+                                  {
+                                    "type": "AlertTitle",
+                                    "props": {
+                                      "content": "{{workoutLogged ? 'Workout saved' : 'Workout in progress'}}"
+                                    }
+                                  },
+                                  {
+                                    "type": "AlertDescription",
+                                    "props": {
+                                      "content": "{{workoutLogged ? 'This session is already logged. Reset or edit it if you want to track a new one.' : 'You can keep editing values and save once the workout is complete.'}}"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TabsContent",
+                        "props": {
+                          "value": "charts",
+                          "className": "mt-5"
+                        },
+                        "children": [
+                          {
+                            "type": "Stack",
+                            "props": {
+                              "gap": "lg"
+                            },
+                            "children": [
+                              {
+                                "type": "BarChart",
+                                "props": {
+                                  "labelKey": "label",
+                                  "data": [
+                                    {
+                                      "label": "{{exerciseOneName}}",
+                                      "volume": {
+                                        "expr": "exerciseOneVolume"
+                                      }
+                                    },
+                                    {
+                                      "label": "{{exerciseTwoName}}",
+                                      "volume": {
+                                        "expr": "exerciseTwoVolume"
+                                      }
+                                    },
+                                    {
+                                      "label": "{{exerciseThreeName}}",
+                                      "volume": {
+                                        "expr": "exerciseThreeVolume"
+                                      }
+                                    },
+                                    {
+                                      "label": "{{exerciseFourName}}",
+                                      "volume": {
+                                        "expr": "exerciseFourVolume"
+                                      }
+                                    }
+                                  ],
+                                  "series": [
+                                    {
+                                      "key": "volume",
+                                      "label": "Volume",
+                                      "className": "fill-slate-950",
+                                      "swatchClassName": "bg-slate-950"
+                                    }
+                                  ],
+                                  "className": "rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+                                }
+                              },
+                              {
+                                "type": "PieChart",
+                                "props": {
+                                  "variant": "donut",
+                                  "centerLabel": "Complete",
+                                  "centerValue": "{{completionPercent}}%",
+                                  "data": [
+                                    {
+                                      "label": "Done",
+                                      "value": {
+                                        "expr": "completedExercises"
+                                      },
+                                      "className": "fill-slate-950",
+                                      "swatchClassName": "bg-slate-950"
+                                    },
+                                    {
+                                      "label": "Remaining",
+                                      "value": {
+                                        "expr": "4 - completedExercises"
+                                      },
+                                      "className": "fill-zinc-300",
+                                      "swatchClassName": "bg-zinc-300"
+                                    }
+                                  ],
+                                  "className": "rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "TabsContent",
+                        "props": {
+                          "value": "table",
+                          "className": "mt-5"
+                        },
+                        "children": [
+                          {
+                            "type": "DataTable",
+                            "props": {
+                              "columns": [
+                                {
+                                  "key": "exercise",
+                                  "label": "Exercise"
+                                },
+                                {
+                                  "key": "sets",
+                                  "label": "Sets"
+                                },
+                                {
+                                  "key": "reps",
+                                  "label": "Reps"
+                                },
+                                {
+                                  "key": "weight",
+                                  "label": "Weight"
+                                },
+                                {
+                                  "key": "volume",
+                                  "label": "Volume"
+                                },
+                                {
+                                  "key": "status",
+                                  "label": "Status"
+                                }
+                              ],
+                              "rows": [
+                                {
+                                  "exercise": {
+                                    "content": "{{exerciseOneName}}"
+                                  },
+                                  "sets": {
+                                    "content": "{{exerciseOneSets}}"
+                                  },
+                                  "reps": {
+                                    "content": "{{exerciseOneReps}}"
+                                  },
+                                  "weight": {
+                                    "content": "{{exerciseOneWeight}} kg"
+                                  },
+                                  "volume": {
+                                    "content": "{{exerciseOneVolume}}"
+                                  },
+                                  "status": {
+                                    "content": "{{exerciseOneCompleted ? 'Done' : 'Pending'}}"
+                                  }
+                                },
+                                {
+                                  "exercise": {
+                                    "content": "{{exerciseTwoName}}"
+                                  },
+                                  "sets": {
+                                    "content": "{{exerciseTwoSets}}"
+                                  },
+                                  "reps": {
+                                    "content": "{{exerciseTwoReps}}"
+                                  },
+                                  "weight": {
+                                    "content": "{{exerciseTwoWeight}} kg"
+                                  },
+                                  "volume": {
+                                    "content": "{{exerciseTwoVolume}}"
+                                  },
+                                  "status": {
+                                    "content": "{{exerciseTwoCompleted ? 'Done' : 'Pending'}}"
+                                  }
+                                },
+                                {
+                                  "exercise": {
+                                    "content": "{{exerciseThreeName}}"
+                                  },
+                                  "sets": {
+                                    "content": "{{exerciseThreeSets}}"
+                                  },
+                                  "reps": {
+                                    "content": "{{exerciseThreeReps}}"
+                                  },
+                                  "weight": {
+                                    "content": "{{exerciseThreeWeight}} kg"
+                                  },
+                                  "volume": {
+                                    "content": "{{exerciseThreeVolume}}"
+                                  },
+                                  "status": {
+                                    "content": "{{exerciseThreeCompleted ? 'Done' : 'Pending'}}"
+                                  }
+                                },
+                                {
+                                  "exercise": {
+                                    "content": "{{exerciseFourName}}"
+                                  },
+                                  "sets": {
+                                    "content": "{{exerciseFourSets}}"
+                                  },
+                                  "reps": {
+                                    "content": "{{exerciseFourReps}}"
+                                  },
+                                  "weight": {
+                                    "content": "{{exerciseFourWeight}} kg"
+                                  },
+                                  "volume": {
+                                    "content": "{{exerciseFourVolume}}"
+                                  },
+                                  "status": {
+                                    "content": "{{exerciseFourCompleted ? 'Done' : 'Pending'}}"
+                                  }
+                                }
+                              ],
+                              "className": "w-full"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }

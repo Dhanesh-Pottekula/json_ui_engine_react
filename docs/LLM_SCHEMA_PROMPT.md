@@ -142,6 +142,23 @@ Allowed components:
   - use when you need a real image source, not for decorative colored shapes
   - required props: `src`
   - optional props: `alt`, `className`
+- `Avatar`
+  - use for people, teams, customers, authors, or profile lists
+  - use in dashboards, activity feeds, testimonials, or account sections
+  - optional props: `src`, `alt`, `label`, `fallback`, `size`, `className`
+  - `size`: `sm`, `md`, `lg`, `xl`
+- `Checkbox`
+  - use for multi-select options, consent, preferences, or checklist items
+  - bind with `checked`, not `value`
+  - optional props: `label`, `checked`, `hint`, `disabled`, `className`
+- `Switch`
+  - use for on/off settings such as notifications, auto-renew, dark mode, or feature toggles
+  - bind with `checked`, not `value`
+  - optional props: `label`, `checked`, `hint`, `disabled`, `className`
+- `Progress`
+  - use for completion, quota, onboarding steps, or goal tracking
+  - useful in dashboards, project trackers, and progress sections
+  - optional props: `value`, `max`, `label`, `hint`, `showValue`, `className`
 - `DropSimulation`
   - use for an animated falling and bouncing object scene
   - use when the page needs real motion, not just static explanation
@@ -267,6 +284,47 @@ Allowed components:
 ```
   - item objects may also use `title` and `description` instead of `question` and `answer`
   - each item may also include `className`
+- `Tabs`
+  - use for switching between dashboard views, time ranges, categories, or content panels
+  - use when only one content panel should be visible at a time
+  - usually composed with `TabsList`, `TabsTrigger`, and `TabsContent`
+  - optional props: `value`, `defaultValue`, `className`
+- `TabsList`
+  - use as the container for a row of tab buttons
+  - use inside `Tabs`
+  - optional props: `className`
+- `TabsTrigger`
+  - use for one selectable tab button
+  - use inside `TabsList`
+  - required props: `value`
+  - optional props: `content`, `className`
+- `TabsContent`
+  - use for the content shown when a tab is active
+  - use inside `Tabs`
+  - required props: `value`
+  - optional props: `className`
+- `Accordion`
+  - use for collapsible FAQ sections, settings groups, help content, or dense lists of explanations
+  - use when only some content should be expanded at a time
+  - usually composed with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`
+  - optional props: `type`, `value`, `defaultValue`, `className`
+  - `type`: `single`, `multiple`
+- `AccordionItem`
+  - use for one collapsible item inside `Accordion`
+  - required props: `value`
+  - optional props: `className`
+- `AccordionTrigger`
+  - use for the clickable heading of an accordion item
+  - use inside `AccordionItem`
+  - optional props: `content`, `className`
+- `AccordionContent`
+  - use for the expandable body of an accordion item
+  - use inside `AccordionItem`
+  - optional props: `className`
+- `EmptyState`
+  - use when a dashboard, table, chart section, or list has no data yet
+  - use instead of leaving a blank area
+  - optional props: `title`, `description`, `actionLabel`, `action`, `secondaryActionLabel`, `secondaryAction`, `className`
 - `DataTable`
   - use for standard structured data tables
   - use when all rows follow the same columns, such as comparisons, pricing, schedules, or facts
@@ -402,6 +460,12 @@ Composition rules:
 - Use `LineChart` for trend lines
 - Use `AreaChart` for trend + volume emphasis
 - Use `PieChart` for part-to-whole views with few slices
+- Use `Tabs` when a dashboard needs multiple views in the same area
+- Use `Accordion` for FAQs or collapsible explanations instead of manually hiding blocks
+- Use `Progress` for completion and goal tracking
+- Use `Avatar` for people-centric UI
+- Use `Checkbox` and `Switch` for forms, filters, and preferences
+- Use `EmptyState` for no-data sections in dashboards and tables
 - `StatCard` and `InfoCard` are self-contained display components; do not use them as large layout wrappers
 - `SectionCard` is the better choice when you need a repeated section shell with body children
 - Use `Card` as the main section/layout wrapper when the UI fits normal shadcn/ui composition
@@ -451,7 +515,18 @@ Dashboard guidance:
 - Use no more than one pie/donut chart in a section unless the request clearly needs more
 - Prefer `LineChart` or `AreaChart` for time-series dashboards
 - Prefer `BarChart` for ranked lists and side-by-side comparisons
+- Use `Tabs` for view switching like `Overview`, `Revenue`, `Users`, `Traffic`
+- Use `Progress` for goals, quota, onboarding, completion, and target tracking
+- Use `Avatar` for team or customer panels
+- Use `EmptyState` in places where filters or datasets may result in no results
 - Wrap each chart in `SectionCard` or `Card` with a clear title and short description
+
+Forms guidance:
+- Use `Input`, `Textarea`, `Select`, `Slider`, `Checkbox`, and `Switch` for forms and settings pages
+- Use `Checkbox` for multi-select or consent
+- Use `Switch` for binary settings
+- Use `Select` when one option must be chosen from a list
+- Use `Slider` for numeric ranges
 
 Valid composition patterns:
 ```json

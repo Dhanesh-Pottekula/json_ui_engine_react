@@ -28,7 +28,9 @@ export default function JsonRenderer({
   actionRegistry = defaultActionRegistry,
   onNavigate,
 }) {
+  // Normalize the schema into full format from short formats 
   const normalizedSchema = useMemo(() => normalizeSchema(schema), [schema]);
+  
   const engine = useEngineState(normalizedSchema);
 
   const validation = useMemo(
