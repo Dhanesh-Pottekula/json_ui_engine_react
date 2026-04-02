@@ -31,6 +31,7 @@ export default function JsonRenderer({
   // Normalize the schema into full format from short formats 
   const normalizedSchema = useMemo(() => normalizeSchema(schema), [schema]);
   
+  // Create the engine state for this schema, including state values, derived values, and runtime helpers.
   const engine = useEngineState(normalizedSchema);
 
   const validation = useMemo(

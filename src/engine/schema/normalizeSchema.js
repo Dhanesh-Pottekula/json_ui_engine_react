@@ -125,6 +125,7 @@ function expandBindExprOrAction(value, options = {}) {
 function normalizeLooseValue(value, options = {}) {
   const expanded = expandBindExprOrAction(value, options);
 
+  // if its an array then repeat the process again
   if (Array.isArray(expanded)) {
     return expanded.map((entry) => normalizeLooseValue(entry));
   }

@@ -64,6 +64,7 @@ export function amortization(principal, annualRate, years) {
 }
 
 export const defaultHelpers = {
+  // Safe helper functions that expressions can call directly.
   abs: Math.abs,
   ceil: Math.ceil,
   floor: Math.floor,
@@ -77,6 +78,7 @@ export const defaultHelpers = {
   formatCurrency(value) {
     return currencyFormatter.format(toFiniteNumber(value));
   },
+  // Returns true if any field in the errors object is truthy.
   hasErrors(errors = {}) {
     return Object.values(errors).some(Boolean);
   },
@@ -90,10 +92,13 @@ export function createExpressionScope({
   extras = {},
 } = {}) {
   return {
+    // Make helper functions available inside every expression.
     ...defaultHelpers,
+    // Expose the full objects for expressions like state.amount or runtime.errors.
     state,
     derived,
     runtime,
+    // Also expose individual values directly so expressions can use amount instead of state.amount.
     ...state,
     ...derived,
     ...locals,

@@ -201,10 +201,12 @@ function validateUiNode(node, schema, allowedComponents, errors, pathState, coun
 }
 
 export function validateSchema(schema, options = {}) {
+  // Collect all validation problems so the caller can see every issue at once.
   const errors = [];
   const allowedComponents = new Set(options.components || []);
   const allowedActions = new Set(options.actions || []);
 
+  // The schema root must be a plain object before deeper validation can run.
   if (!isPlainObject(schema)) {
     return {
       valid: false,
@@ -219,6 +221,7 @@ export function validateSchema(schema, options = {}) {
   if (!isPlainObject(schema.derived)) {
     errors.push("derived: must be an object");
   } else {
+    // Validate each derived expression early so runtime evaluation is safer.
     Object.entries(schema.derived).forEach(([key, value]) => {
       const expression = typeof value === "string" ? value : value?.expr;
       if (typeof expression !== "string") {
@@ -237,6 +240,7 @@ export function validateSchema(schema, options = {}) {
   if (!isPlainObject(schema.actions)) {
     errors.push("actions: must be an object");
   } else {
+    // Check each action step and keep a shared counter for cross-step limits.
     const counter = { count: 0 };
     Object.entries(schema.actions).forEach(([name, steps]) => {
       if (!Array.isArray(steps)) {
@@ -253,6 +257,7 @@ export function validateSchema(schema, options = {}) {
   if (!isPlainObject(schema.ui)) {
     errors.push("ui: must be an object");
   } else {
+    // Walk the UI tree recursively and validate component names, props, and nesting.
     const counter = { count: 0 };
     validateUiNode(schema.ui, schema, allowedComponents, errors, {
       path: "ui",
@@ -261,6 +266,7 @@ export function validateSchema(schema, options = {}) {
   }
 
   return {
+    // The schema is valid only if no errors were collected in any section.
     valid: errors.length === 0,
     errors,
   };
