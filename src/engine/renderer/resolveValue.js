@@ -10,6 +10,28 @@ function inferEventName(propName) {
   return propName === "value" ? "onChange" : `on${propName[0].toUpperCase()}${propName.slice(1)}Change`;
 }
 
+/**
+ * Resolve a schema-authored value into a concrete runtime value.
+ *
+ * Supported forms:
+ * - primitives are returned as-is
+ * - strings are interpolated with the current expression scope
+ * - arrays are resolved item by item
+ * - objects with `{ expr }` are evaluated as expressions
+ * - other plain objects are resolved recursively
+ *
+ * The scope exposes `state`, `derived`, `runtime`, `locals`, and `extras`,
+ * along with each state/derived/local value directly for expression access.
+ *
+ * @param {any} value Schema value to resolve.
+ * @param {object} [context={}] Render/action context used to build the expression scope.
+ * @param {object} [context.state] Current engine state values.
+ * @param {object} [context.derived] Current derived values computed from state.
+ * @param {object} [context.runtime] Runtime metadata such as errors and action results.
+ * @param {object} [context.locals] Local variables introduced by repeated UI nodes.
+ * @param {object} [context.extras] Extra transient values passed by action flows.
+ * @returns {any} Fully resolved JavaScript value ready to pass into a component or action.
+ */
 export function resolveSchemaValue(value, context = {}) {
   const scope = createExpressionScope({
     state: context.state,
@@ -42,6 +64,52 @@ export function resolveSchemaValue(value, context = {}) {
   return value;
 }
 
+/**
+ * Convert schema props into real React props for a rendered component.
+ *
+ * Special schema forms handled here:
+ * - `{ bind: "path" }`
+ *   Reads the current value from engine state and creates a matching change handler
+ *   that writes updates back through `context.setValue`.
+ * - `{ action: "name", with: {...} }`
+ *   Creates an event handler that triggers a named action through `context.executeAction`.
+ * - all other values
+ *   Are resolved through `resolveSchemaValue`, which supports expressions and interpolation.
+ *
+ * Binding details:
+ * - `value` infers `onChange`
+ * - `checked` infers `onCheckedChange`
+ * - any other prop infers `on${PropName}Change`
+ * - `event` can override the inferred event name
+ * - `transform` can preprocess the incoming event value before it is stored
+ *
+ * Inside a bind transform expression:
+ * - `input` is the new value coming from the component event
+ * - `current` is the current value already stored at the bound path
+ *
+ * Example:
+ * ```js
+ * mapProps(
+ *   {
+ *     value: { bind: "profile.age", transform: "+input" },
+ *     onClick: { action: "saveProfile", with: { source: "button" } },
+ *   },
+ *   context
+ * );
+ * ```
+ *
+ * @param {Record<string, any>} [props={}] Schema props object from a UI node.
+ * @param {object} [context={}] Render context used to resolve values and wire handlers.
+ * @param {(path: string) => any} [context.getValue] Reads a value from engine state by path.
+ * @param {(path: string, value: any) => void} [context.setValue] Writes a value into engine state.
+ * @param {(actionName: string, extras?: object) => any} [context.executeAction] Runs a named schema action.
+ * @param {object} [context.state] Current engine state values.
+ * @param {object} [context.derived] Current derived values.
+ * @param {object} [context.runtime] Current runtime metadata.
+ * @param {object} [context.locals] Local variables available while rendering repeated nodes.
+ * @param {object} [context.extras] Extra transient values available to expressions.
+ * @returns {Record<string, any>} React-ready props object with resolved values and event handlers.
+ */
 export function mapProps(props = {}, context = {}) {
   const mappedProps = {};
 
